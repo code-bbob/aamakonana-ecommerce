@@ -44,7 +44,7 @@ export default function ProductsPage() {
   const [searchSuggestions, setSearchSuggestions] = useState<Product[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
-  const searchTimeoutRef = useRef<NodeJS.Timeout>();
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const [filters, setFilters] = useState({
     priceRange: [0, 100000],
@@ -156,8 +156,8 @@ export default function ProductsPage() {
       pages.push(1);
 
       // Calculate start and end of middle section
-      let startPage = Math.max(2, currentPage - 2);
-      let endPage = Math.min(totalPages - 1, currentPage + 2);
+      const startPage = Math.max(2, currentPage - 2);
+      const endPage = Math.min(totalPages - 1, currentPage + 2);
 
       // Add ellipsis before middle section
       if (startPage > 2) {
@@ -202,7 +202,7 @@ export default function ProductsPage() {
         <div
           className=" relative w-full p-8 items-center overflow-hidden h-48 bg-cover bg-top bg-right "
           data-alt="A serene photo of a mother gently holding her baby."
-          style={{ backgroundImage: "url('images/banner3.png')" }}
+          style={{ backgroundImage: "url('/images/banner3.png')" }}
         >
 
               <nav className="flex items-center gap-2 font-bold text-sm text-gray-600">
@@ -383,7 +383,7 @@ export default function ProductsPage() {
                     </div>
                   ) : (
                     <div className="p-4 text-center text-gray-500">
-                      No products found matching "{searchQuery}"
+                      No products found matching &quot;{searchQuery}&quot;
                     </div>
                   )}
                 </div>

@@ -12,7 +12,6 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel"
 import type { CarouselApi } from "@/components/ui/carousel"
-import { Button } from '@/components/ui/button';
 
 interface ProductImage {
   image: string;

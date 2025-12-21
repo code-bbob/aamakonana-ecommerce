@@ -25,7 +25,8 @@ interface FormErrors {
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { items, getTotalPrice } = useCart();
+  const { items, getTotalPrice, clearCart } = useCart();
+  const [isLoading, setIsLoading] = useState(false);
 
   const [formData, setFormData] = useState<DeliveryFormData>({
     firstName: '',
@@ -59,7 +60,7 @@ export default function CheckoutPage() {
     }
   };
 
-  const handleContinueToPayment = () => {
+  const handleContinueToPayment = async () => {
     const newErrors: FormErrors = {};
 
     if (!formData.firstName.trim()) {
@@ -90,7 +91,50 @@ export default function CheckoutPage() {
     }
 
     // Submit order to backend
-    console.log('Submitting order:', formData);
+    setIsLoading(true);
+    try {
+      const response = await fetch('http://localhost:8000/cart/api/checkout/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          phoneNumber: formData.phoneNumber,
+          email: formData.email,
+          shippingAddress: formData.shippingAddress,
+          subtotal,
+          shippingCost,
+          cartItems: items.map(item => ({
+            product_id: item.product_id,
+            quantity: item.quantity,
+            price: item.price,
+            color: item.color,
+            size: item.size,
+          })),
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        setErrors({ firstName: errorData.detail || 'Order creation failed' });
+        return;
+      }
+
+      const orderData = await response.json();
+      
+      // Clear cart
+      clearCart();
+      
+      // Redirect to success page
+      router.push(`/order-confirmation/${orderData.id}`);
+    } catch (error) {
+      console.error('Error submitting order:', error);
+      setErrors({ firstName: 'Failed to submit order. Please try again.' });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -254,15 +298,6 @@ export default function CheckoutPage() {
                           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
                         />
                       </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-900 mb-2">Area</label>
-                        <input
-                          type="text"
-                          placeholder="Enter area"
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                        />
-                      </div>
-                    </div>
 
                     {/* ZIP Code */}
                     <div>
@@ -271,8 +306,9 @@ export default function CheckoutPage() {
                         type="text"
                         placeholder="Enter ZIP code"
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                      />
+                        />
                     </div>
+                        </div>
                   </div>
                 </div>
 
@@ -340,9 +376,10 @@ export default function CheckoutPage() {
                 {/* Continue Button */}
                 <button
                   onClick={handleContinueToPayment}
-                  className="w-full bg-purple-500 text-white py-4 rounded-lg font-bold text-lg hover:bg-purple-600 transition-colors"
+                  disabled={isLoading}
+                  className="w-full bg-red-500 text-white py-4 rounded-lg font-bold text-lg hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Place Order - NPR {total.toLocaleString()}
+                  {isLoading ? 'Processing...' : `Place Order - NPR ${total.toLocaleString()}`}
                 </button>
             </div>
           </div>

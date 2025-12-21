@@ -1,15 +1,13 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { X, Trash2, Plus, Minus } from 'lucide-react';
+import { Trash2, Plus, Minus } from 'lucide-react';
 import Image from 'next/image';
 import { useCart } from '@/context/CartContext';
-import { useState } from 'react';
 
 export default function CartPage() {
   const router = useRouter();
-  const { items, removeItem, updateQuantity, getTotalPrice, clearCart } = useCart();
-  const [couponCode, setCouponCode] = useState('');
+  const { items, removeItem, updateQuantity, getTotalPrice } = useCart();
 
   if (items.length === 0) {
     return (
@@ -30,8 +28,7 @@ export default function CartPage() {
   }
 
   const subtotal = getTotalPrice();
-  const shipping = subtotal > 5000 ? 0 : 'Free'; // Free shipping over 5000
-  const shippingCost = shipping === 'Free' ? 0 : 300;
+  const shippingCost = subtotal > 5000 ? 0 : 120;
   const total = subtotal + shippingCost;
 
   return (
@@ -148,7 +145,7 @@ export default function CartPage() {
                 </div>
                 <div className="flex justify-between text-gray-600">
                   <span>Shipping</span>
-                  <span>{shipping === 'Free' ? 'Free' : `NPR ${shippingCost}`}</span>
+                  <span>{shippingCost === 0 ? 'Free' : `NPR ${shippingCost}`}</span>
                 </div>
               </div>
 

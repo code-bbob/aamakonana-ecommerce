@@ -4,43 +4,43 @@ from shop.models import Product
 from shop.serializers import ProductSerializer
 
 class OrderItemSerializer(serializers.ModelSerializer):
-    # product = serializers.PrimaryKeyRelatedField(queryset=Product.objects.all())  # Adjust queryset based on your Product model
     product_name = serializers.CharField(source='product.name', read_only=True)
     product_id = serializers.CharField(source='product.product_id', read_only=True)
+    color_name = serializers.CharField(source='color.name', read_only=True)
+    size_name = serializers.CharField(source='size.name', read_only=True)
+    
     class Meta:
         model = OrderItem
-        fields = ['id', 'product_name','product_id', 'quantity']
+        fields = ['id', 'product_name', 'product_id', 'quantity', 'price', 'color_name', 'size_name']
 
 
 class DeliverySerializer(serializers.ModelSerializer):
-    order = serializers.PrimaryKeyRelatedField(read_only=True)
+    order_items = serializers.SerializerMethodField()
+    
     class Meta:
         model = Delivery
-        fields = '__all__'
+        fields = ['id', 'order', 'phone_number', 'first_name', 'last_name', 'email', 
+                  'shipping_address', 'payment_method', 'shipping_cost', 'subtotal', 
+                  'discount', 'payment_amount', 'payment_status', 'order_items', 'created_at']
+    
+    def get_order_items(self, obj):
+        if obj.order:
+            items = obj.order.order_items.all()
+            return OrderItemSerializer(items, many=True).data
+        return []
 
 class OrderSerializer(serializers.ModelSerializer):
     order_items = OrderItemSerializer(many=True, read_only=True)
-    user_name = serializers.SerializerMethodField()
-    # delivery = DeliverySerializer(read_only=True)
+    delivery = DeliverySerializer(read_only=True)
 
     class Meta:
         model = Order
-        fields = '__all__'#yo field ma xai uta ko related name use hunxa
+        fields = ['id', 'user', 'status', 'order_items', 'delivery', 'created_at', 'updated_at']
 
     def create(self, validated_data):
-        carts = validated_data.pop('carts', None)
+        # User is optional, can be None for guest checkout
         order = Order.objects.create(**validated_data)
-        if carts: 
-            for cart in carts:
-                product = cart.product
-                quantity = cart.quantity
-                cart.delete()
-                OrderItem.objects.create(product=product, quantity=quantity, order=order)
-
         return order
-    
-    def get_user_name(self, obj):
-        return obj.user.name
 
 class CartSerializer(serializers.ModelSerializer):
     product_id = serializers.CharField(source='product.product_id', read_only=True)

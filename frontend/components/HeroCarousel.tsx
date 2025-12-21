@@ -1,5 +1,4 @@
 "use client";
-import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
 type Slide = {
@@ -62,10 +61,6 @@ export default function HeroCarousel() {
 
   const prev = () => go(index - 1);
   const next = () => go(index + 1);
-  const onKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "ArrowLeft") prev();
-    if (e.key === "ArrowRight") next();
-  };
 
   const onTouchStart = (e: React.TouchEvent) => {
     const x = e.touches[0].clientX;

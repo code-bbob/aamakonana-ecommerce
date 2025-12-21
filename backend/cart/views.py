@@ -1,24 +1,127 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Order, OrderItem,Cart, Coupon
+from .models import Order, OrderItem, Cart, Coupon, Delivery
 from .serializers import OrderSerializer, OrderItemSerializer, DeliverySerializer, CartSerializer
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 import random
 from rest_framework import generics
 from .utils import Util
-from shop.models import Product
+from shop.models import Product, Color, Size
 import datetime
 from django.core.mail import EmailMultiAlternatives
 from django.utils.html import strip_tags
 from .tasks import send_order_email  # Import the Celery task
 
 
+class CheckoutAPIView(APIView):
+    """Handle checkout with delivery info and order creation"""
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        """Create order and delivery info from checkout form"""
+        data = request.data
+        
+        # Get cart items from request or user's cart
+        cart_items_data = data.get('cartItems', [])
+        
+        if not cart_items_data:
+            return Response({'detail': 'Cart is empty'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Create order
+        user = request.user if request.user.is_authenticated else None
+        order = Order.objects.create(user=user, status='Placed')
+        
+        # Create order items from cart items
+        try:
+            for item in cart_items_data:
+                product = Product.objects.get(product_id=item.get('product_id'))
+                
+                # Get color and size if available
+                color = None
+                size = None
+                
+                if item.get('color'):
+                    color = Color.objects.filter(name=item.get('color'), product=product).first()
+                
+                if item.get('size'):
+                    size = Size.objects.filter(name=item.get('size')).first()
+                
+                OrderItem.objects.create(
+                    order=order,
+                    product=product,
+                    color=color,
+                    size=size,
+                    quantity=item.get('quantity', 1),
+                    price=item.get('price', 0)
+                )
+        except Product.DoesNotExist:
+            order.delete()
+            return Response({'detail': 'Product not found'}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            order.delete()
+            return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Create delivery info
+        try:
+            subtotal = data.get('subtotal', 0)
+            shipping_cost = data.get('shippingCost', 0)
+            
+            delivery_data = {
+                'order': order.id,
+                'phone_number': data.get('phoneNumber'),
+                'first_name': data.get('firstName'),
+                'last_name': data.get('lastName'),
+                'email': data.get('email', ''),
+                'shipping_address': data.get('shippingAddress'),
+                'payment_method': 'COD',
+                'shipping_cost': shipping_cost,
+                'subtotal': subtotal,
+                'discount': 0,
+                'payment_amount': subtotal + shipping_cost,
+                'payment_status': 'Pending'
+            }
+            
+            delivery_serializer = DeliverySerializer(data=delivery_data)
+            if delivery_serializer.is_valid():
+                delivery = delivery_serializer.save(order=order)
+            else:
+                order.delete()
+                return Response(delivery_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            order.delete()
+            return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Clear user's cart if authenticated
+        if user:
+            Cart.objects.filter(user=user).delete()
+        
+        # Return order info
+        order_serializer = OrderSerializer(order)
+        return Response(order_serializer.data, status=status.HTTP_201_CREATED)
+
+
+class OrderDetailAPIView(APIView):
+    """Get a specific order by ID"""
+    permission_classes = [AllowAny]
+
+    def get(self, request, order_id):
+        try:
+            order = Order.objects.get(id=order_id)
+            serializer = OrderSerializer(order)
+            return Response(serializer.data)
+        except Order.DoesNotExist:
+            return Response({'detail': 'Order not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
 class OrderAPIView(APIView):
-    permission_classes=[IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get(self, request, *args, **kwargs):
-        orders = Order.objects.filter(user=request.user)
+        if request.user.is_authenticated:
+            orders = Order.objects.filter(user=request.user)
+        else:
+            orders = Order.objects.filter(user=None)
         serializer = OrderSerializer(orders, many=True)
         return Response(serializer.data)
     
