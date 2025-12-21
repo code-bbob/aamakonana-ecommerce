@@ -6,6 +6,7 @@ class ReplySerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField() #yo garexi i can define serializers for user by myself i.e. user ko kun attribute pathaune vanera
     comment = serializers.PrimaryKeyRelatedField(read_only=True)
     user_dp = serializers.SerializerMethodField()
+    published_date = serializers.DateField(format='%Y-%m-%d', read_only=True)
     class Meta:
         model = Repliess
         fields = ['user', 'comment','text','published_date','user_dp']
@@ -24,6 +25,7 @@ class CommentSerializer(serializers.ModelSerializer):
     product = serializers.PrimaryKeyRelatedField(read_only=True)
     replies = ReplySerializer(many=True, read_only=True)
     user_dp = serializers.SerializerMethodField()
+    published_date = serializers.DateField(format='%Y-%m-%d', read_only=True)
 
     class Meta:
         model = Comment
@@ -42,7 +44,7 @@ class ProductImageSerializer(serializers.ModelSerializer):
     hex = serializers.SerializerMethodField()
     class Meta:
         model = ProductImage
-        fields = ['image','color','color_name','hex']
+        fields = ['id', 'image', 'color', 'product', 'color_name', 'hex']
 
     def get_color_name(self, obj):
         return obj.color.name if obj.color else None
@@ -88,7 +90,7 @@ class SizeSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Size
-        fields = ['id', 'name', 'price_adjustment', 'color_stocks']
+        fields = ['id', 'name', 'price_adjustment', 'product', 'color_stocks']
     
     def get_color_stocks(self, obj):
         color_stocks = obj.color_stocks.all()
@@ -100,7 +102,7 @@ class SizeColorStockSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = SizeColorStock
-        fields = ['id', 'color_id', 'color_name', 'stock']
+        fields = ['id', 'color_id', 'color_name', 'stock', 'product', 'size', 'color']
     
     def get_color_id(self, obj):
         return obj.color.id if obj.color else None
@@ -111,7 +113,7 @@ class SizeColorStockSerializer(serializers.ModelSerializer):
 class ColorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Color
-        fields = ['id', 'name', 'hex']
+        fields = ['id', 'name', 'hex', 'product']
     
 class GetProductSerializer(serializers.ModelSerializer):
     images = ProductImageSerializer(many = True, read_only = True)
@@ -150,12 +152,13 @@ class ProductSerializer(serializers.ModelSerializer):
     images = ProductImageSerializer(many = True, read_only = True)
     brandName = serializers.SerializerMethodField()
     ratings = serializers.SerializerMethodField()
-    category = serializers.StringRelatedField()
-    sub_category = serializers.StringRelatedField()
+    category_name = serializers.SerializerMethodField()
+    sub_category_name = serializers.SerializerMethodField()
     attributes = ProductAttributeSerializer(many=True, read_only=True)
     variants = VariantSerializer(many=True, read_only=True)
     sizes = SizeSerializer(many=True, read_only=True)
     colors = ColorSerializer(many=True, read_only=True)
+    published_date = serializers.DateField(format='%Y-%m-%d', read_only=True)
     class Meta:
         model = Product
         fields = '__all__'
@@ -180,3 +183,9 @@ class ProductSerializer(serializers.ModelSerializer):
     
     def get_brandName(self, obj):
         return obj.brand.name
+    
+    def get_category_name(self, obj):
+        return obj.category.name if obj.category else None
+    
+    def get_sub_category_name(self, obj):
+        return obj.sub_category.name if obj.sub_category else None

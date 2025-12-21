@@ -5,6 +5,7 @@ from .serializers import  UserLoginSerializer, UserRegistrationSerializer, UserP
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.authtoken.models import Token
 from django.core.files.base import ContentFile
 import random
 from .utils import Util
@@ -69,8 +70,13 @@ class UserLoginView(APIView):
     password = serializer.data.get('password')
     user = authenticate(email=email, password=password)
     if user is not None:
-      token = get_tokens_for_user(user)
-      return Response({'token':token, 'msg':'Login Success'}, status=status.HTTP_200_OK)
+      token, created = Token.objects.get_or_create(user=user)
+      user_serializer = UserInfoSerializer(user)
+      return Response({
+        'auth_token': str(token),
+        'user': user_serializer.data,
+        'msg': 'Login Success'
+      }, status=status.HTTP_200_OK)
     else:
       return Response({'errors':{'non_field_errors':['Email or Password is not Valid']}},status=status.HTTP_400_BAD_REQUEST)
     
@@ -240,3 +246,11 @@ class GoogleCallbackView(APIView):
         except Exception as e: # Catch any other exceptions
             print(f"An unexpected error occurred: {e}") # Debugging
             return Response({'error': 'An unexpected error occurred'}, status=500) # Generic error message
+
+
+class UserListView(APIView):
+  permission_classes = [IsAuthenticated]
+  def get(self, request, format=None):
+    users = User.objects.all()
+    serializer = UserInfoSerializer(users, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)

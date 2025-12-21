@@ -1,14 +1,22 @@
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from . import views
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
+from rest_framework.routers import DefaultRouter
 
-
+router = DefaultRouter()
+router.register(r'color', views.ColorViewSet)
+router.register(r'size', views.SizeViewSet)
+router.register(r'size-color-stock', views.SizeColorStockViewSet)
+router.register(r'product-image', views.ProductImageViewSet)
+router.register(r'category', views.CategoryViewSet)
+router.register(r'brand', views.BrandViewSet)
 
 urlpatterns = [
+    path('', include(router.urls)),
     path('api/', views.GetProduct.as_view(), name='api'),
     path('api/tagged/', views.TaggedProductsView.as_view(), name='tagged_products'),
     path('api/deals/', views.GetDealProduct.as_view(), name='api'),
@@ -26,5 +34,4 @@ urlpatterns = [
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/rating/<str:product_id>/',views.RatingView.as_view(), name="rating"),
-
 ]

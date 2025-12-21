@@ -12,7 +12,7 @@ interface Product {
   name: string;
   price: number;
   old_price?: number;
-  category: string;
+  category_name: string;
   images: Array<{ image: string }>;
   ratings?: {
     stats: {
@@ -339,7 +339,7 @@ export default function ProductsPage() {
           </aside>
           
 
-          <div className="flex-1">
+          <div className="flex-1 page-load-fade-in">
             <h1 className='mt-4 text-2xl font-semibold'>Shop</h1>
             
             {/* Search Bar with Suggestions */}
@@ -390,7 +390,7 @@ export default function ProductsPage() {
               )}
             </div>
 
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-8 gap-4 pb-8 border-b border-gray-200">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-8 gap-4 pb-8 border-b border-gray-200 page-load-fade-in">
               <div className="flex items-center gap-4">
                 <button
                   onClick={() => setMobileFiltersOpen(!mobileFiltersOpen)}
@@ -436,9 +436,11 @@ export default function ProductsPage() {
               </div>
             ) : products.length > 0 ? (
               <>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-8 md:gap-12 mb-16">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-8 md:gap-12 mb-16 ">
                   {products.map((product) => (
-                    <ProductCard key={product.product_id} product={product} />
+                    <div key={product.product_id}>
+                      <ProductCard product={product} />
+                    </div>
                   ))}
                 </div>
 

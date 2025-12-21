@@ -1,0 +1,260 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { AdminProtected } from '@/components/AdminProtected';
+import {
+  Plus,
+  Edit2,
+  Trash2,
+  Search,
+} from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+
+const API_BASE_URL = 'http://localhost:8000';
+
+interface Product {
+  product_id: string;
+  name: string;
+  price: number;
+  category_name: string;
+  stock?: number;
+  images: Array<{ image: string }>;
+}
+
+export default function AdminProducts() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [deleteDialog, setDeleteDialog] = useState<{
+    open: boolean;
+    productId?: string;
+    productName?: string;
+  }>({
+    open: false,
+  });
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('auth_token');
+      const response = await fetch(`${API_BASE_URL}/shop/api/?limit=100`, {
+        headers: { 'Authorization': `Token ${token}` },
+      });
+
+      const data = await response.json();
+      setProducts(data.results || []);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (productId: string) => {
+    const product = products.find((p) => p.product_id === productId);
+    setDeleteDialog({
+      open: true,
+      productId,
+      productName: product?.name,
+    });
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteDialog.productId) return;
+
+    try {
+      setIsDeleting(true);
+      const token = localStorage.getItem('auth_token');
+      const response = await fetch(`${API_BASE_URL}/shop/api/${deleteDialog.productId}/`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Token ${token}` },
+      });
+
+      if (response.ok) {
+        setProducts(products.filter((p) => p.product_id !== deleteDialog.productId));
+        setDeleteDialog({ open: false });
+      } else {
+        // Handle error response
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Failed to delete product:', errorData);
+      }
+    } catch (error) {
+      console.error('Error deleting product:', error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const filteredProducts = products.filter((p) =>
+    p.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  return (
+    <AdminProtected>
+      <>
+        {/* Top Bar */}
+        <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <h1 className="text-2xl font-bold text-gray-900">Products</h1>
+        </div>
+        <Link href="/admin/products/new">
+          <button className="flex items-center gap-2 px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors">
+              <Plus size={18} />
+              Add Product
+            </button>
+          </Link>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-auto p-6">
+          {/* Search */}
+          <div className="mb-6">
+            <div className="relative">
+              <Search size={20} className="absolute left-3 top-3 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search products..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+              />
+            </div>
+          </div>
+
+          {/* Products Table */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+            {loading ? (
+              <div className="p-8 text-center text-gray-600">
+                <p>Loading products...</p>
+              </div>
+            ) : filteredProducts.length === 0 ? (
+              <div className="p-8 text-center text-gray-600">
+                <p>No products found</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-gray-200 bg-gray-50">
+                      <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm">
+                        Product
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm">
+                        Category
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm">
+                        Price
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm">
+                        Stock
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredProducts.map((product) => (
+                      <tr
+                        key={product.product_id}
+                        className="border-b border-gray-100 hover:bg-gray-50"
+                      >
+                        <td className="py-3 px-4">
+                          <div className="flex items-center gap-3">
+                            {product.images && product.images[0] && (
+                              <img
+                                src={product.images[0].image}
+                                alt={product.name}
+                                className="w-10 h-10 rounded object-cover"
+                              />
+                            )}
+                            <span className="font-medium text-gray-900 text-sm">
+                              {product.name}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="py-3 px-4 text-sm text-gray-600">
+                          {product.category_name}
+                        </td>
+                        <td className="py-3 px-4 text-sm font-medium text-gray-900">
+                          NPR {product.price.toLocaleString()}
+                        </td>
+                        <td className="py-3 px-4 text-sm text-gray-600">
+                          <span
+                            className={`px-2 py-1 rounded text-xs font-medium ${
+                              (product.stock || 0) > 0
+                                ? 'bg-green-100 text-green-800'
+                                : 'bg-red-100 text-red-800'
+                            }`}
+                          >
+                            {product.stock || 0} units
+                          </span>
+                        </td>
+                        <td className="py-3 px-4">
+                          <div className="flex items-center gap-2">
+                            <Link href={`/admin/products/${product.product_id}/edit`}>
+                              <button className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                                <Edit2 size={16} />
+                              </button>
+                            </Link>
+                            <button
+                              onClick={() => handleDelete(product.product_id)}
+                              className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Delete Confirmation Dialog */}
+        <Dialog open={deleteDialog.open} onOpenChange={(open) => setDeleteDialog({ ...deleteDialog, open })}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Delete Product</DialogTitle>
+              <DialogDescription>
+                Are you sure you want to delete "{deleteDialog.productName}"? This action cannot be undone.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="flex gap-3">
+              <button
+                onClick={() => setDeleteDialog({ open: false })}
+                disabled={isDeleting}
+                className="px-4 py-2 bg-gray-200 text-gray-900 rounded-lg hover:bg-gray-300 disabled:opacity-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                disabled={isDeleting}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors"
+              >
+                {isDeleting ? 'Deleting...' : 'Delete'}
+              </button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </>
+    </AdminProtected>
+  );
+}

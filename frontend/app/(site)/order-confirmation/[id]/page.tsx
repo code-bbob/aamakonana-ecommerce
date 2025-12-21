@@ -36,15 +36,22 @@ interface Order {
   delivery: Delivery;
 }
 
-export default function OrderConfirmationPage({ params }: { params: { id: string } }) {
+interface PageProps {
+  params: Promise<{ id: string }>;
+}
+
+export default function OrderConfirmationPage({ params }: PageProps) {
   const router = useRouter();
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
+  const [orderId, setOrderId] = useState<string>('');
 
   useEffect(() => {
     const fetchOrder = async () => {
       try {
-        const response = await fetch(`http://localhost:8000/cart/api/${params.id}/`, {
+        const resolvedParams = await params;
+        setOrderId(resolvedParams.id);
+        const response = await fetch(`http://localhost:8000/cart/api/${resolvedParams.id}/`, {
           headers: {
             'Content-Type': 'application/json',
           },
@@ -64,7 +71,7 @@ export default function OrderConfirmationPage({ params }: { params: { id: string
     };
 
     fetchOrder();
-  }, [params.id]);
+  }, [orderId, params]);
 
   if (loading) {
     return (

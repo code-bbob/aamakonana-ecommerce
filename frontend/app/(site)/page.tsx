@@ -1,9 +1,17 @@
 "use client";
 import { Manrope } from "next/font/google";
+import { useEffect } from "react";
 import HeroCarousel from "@/components/HeroCarousel";
+import { initRevealObserver } from "@/lib/animations";
+
 const manrope = Manrope({ subsets: ["latin"] });
 
 export default function AmakonanaLanding() {
+  useEffect(() => {
+    // Initialize reveal observer for scroll animations
+    initRevealObserver();
+  }, []);
+
   return (
 <div className={`${manrope.className} bg-zinc-200`}>
 
@@ -14,7 +22,7 @@ export default function AmakonanaLanding() {
       <section className="relative grid min-h-[calc(100vh-69px)] grid-cols-1 md:grid-cols-2">
         <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
           <h1
-            className="font-extrabold text-white/90 text-7xl sm:text-8xl md:text-9xl lg:text-[160px]"
+            className="font-extrabold text-white/90 text-7xl sm:text-8xl md:text-9xl lg:text-[160px] page-load-fade-in"
             style={{ fontWeight: 800, textShadow: "0 2px 20px rgba(0,0,0,0.3)" }}
           >
             
@@ -22,7 +30,7 @@ export default function AmakonanaLanding() {
         </div>
 
         <div
-          className="group relative flex h-full flex-col items-center justify-end overflow-hidden bg-cover bg-center p-8 md:p-12"
+          className="group relative flex h-full flex-col items-center justify-end overflow-hidden bg-cover bg-center p-8 md:p-12 page-load-fade-in"
           data-alt="A serene photo of a mother gently holding her baby."
           style={{ backgroundImage: "url('/images/mom5.png')" }}
         >
@@ -36,7 +44,7 @@ export default function AmakonanaLanding() {
         </div>
 
         <div
-          className="group relative flex h-full flex-col items-center justify-end overflow-hidden bg-cover bg-center p-8 md:p-12"
+          className="group relative flex h-full flex-col items-center justify-end overflow-hidden bg-cover bg-center p-8 md:p-12 page-load-fade-in"
           data-alt="A close-up, tender photo of a newborn baby's feet."
           style={{ backgroundImage: "url('/images/baby.png')" }}
         >
@@ -51,8 +59,8 @@ export default function AmakonanaLanding() {
       </section>
 
       {/* Mothers Grid */}
-      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24">
-        <h2 className="pb-8 text-center text-3xl font-bold leading-tight tracking-tight text-text-light-primary">For Mothers</h2>
+      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24" data-reveal="true">
+        <h2 className="pb-8 text-center text-3xl font-bold leading-tight tracking-tight text-text-light-primary page-load-fade-in">For Mothers</h2>
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
           {[{
             title: "The Everly Dress",
@@ -85,26 +93,26 @@ export default function AmakonanaLanding() {
       </section>
 
       {/* Ethos Section */}
-      <section className="bg-border-light">
+      <section className="bg-border-light" data-reveal="true">
         <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-8 px-4 py-16 md:grid-cols-2 md:gap-16 md:px-6 md:py-24">
           <div
-            className="aspect-square w-full bg-cover bg-center"
+            className="aspect-square w-full bg-cover bg-center page-load-fade-in"
             data-alt="A beautiful, soft-lit image of natural cotton fibers on a loom."
             style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuDx4gd7sVRvdDxYwIVlXFiUmcGYTED_VI-ATBf7HpA_fGOoZG2f1K4tRDsvFmJQUIsXUg1T0MBCJt0qd3qn7BR0l2WLLjtBYCWFEXFrmIbj_jJSX_qZxLPWdwmHuRS9V4BAkZPU7pyocjKxftTVV60_Az-WUrYVdqjPDU6lCa90rvJr_wyZ8d03ppyRYIFcLOad_-ClEUneTMHi7j16IFl24AGlqNkZVqCWlpu-sQ6gPq0_XlS1n277onqXj6bOthfl0g1BDJHDCjA')" }}
           />
-          <div className="flex flex-col gap-4">
-            <h3 className="text-3xl font-bold tracking-tight text-text-light-primary">Crafted with Love, Sourced with Care</h3>
-            <p className="text-base leading-relaxed text-text-light-secondary">
+          <div className="flex flex-col gap-4" data-stagger="true">
+            <h3 className="text-3xl font-bold tracking-tight text-text-light-primary page-load-fade-in" data-reveal-child>Crafted with Love, Sourced with Care</h3>
+            <p className="text-base leading-relaxed text-text-light-secondary page-load-fade-in" data-reveal-child>
               At Amakonana, we believe that the journey of motherhood deserves the purest essentials. Our collections are thoughtfully designed with both mother and baby in mind, using only the finest, sustainably-sourced organic materials. Each piece is a testament to our commitment to quality, comfort, and timeless style.
             </p>
-            <a className="mt-4 text-sm font-bold uppercase tracking-wider text-text-light-primary underline-offset-4 hover:underline" href="#">Discover Our Story</a>
+            <a className="mt-4 text-sm font-bold uppercase tracking-wider text-text-light-primary underline-offset-4 hover:underline page-load-fade-in" href="#" data-reveal-child>Discover Our Story</a>
           </div>
         </div>
       </section>
 
       {/* Newborns Grid */}
-      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24">
-        <h2 className="pb-8 text-center text-3xl font-bold leading-tight tracking-tight text-text-light-primary">For Newborns</h2>
+      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24" data-reveal="true">
+        <h2 className="pb-8 text-center text-3xl font-bold leading-tight tracking-tight text-text-light-primary page-load-fade-in">For Newborns</h2>
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
           {[{
             title: "Organic Cotton Onesie",

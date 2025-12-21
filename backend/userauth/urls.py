@@ -16,8 +16,10 @@ urlpatterns = [
     path('reset-password/',views.SendPasswordResetEmailView.as_view(),name='resetpassword'),
     path('reset-password/<uid>/<token>/', views.UserPasswordResetView.as_view(), name='reset-password'),
     path('signup/',views.SignupView.as_view(),name="signup"),
+    path('me/', views.UserInfoView.as_view(), name='me'),
     path('info/',views.UserInfoView.as_view(), name='info'),
     path('info/<str:id>', views.UserInfoView.as_view(), name='infoid'),
     path('google/', GoogleAuthView.as_view(), name='google_auth'),
     path('google/callback/', GoogleCallbackView.as_view(), name='google_callback'),
+    path('users/', views.UserListView.as_view(), name='users'),
 ]

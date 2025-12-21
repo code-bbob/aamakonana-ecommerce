@@ -1,10 +1,10 @@
 from django.shortcuts import render
-from .models import Product,Comment
+from .models import Product, Comment, Color, Size, SizeColorStock, ProductImage, Category, Brand
 from math import ceil
-from .serializers import ProductSerializer, CommentSerializer, ReplySerializer, RatingSerializer, GetProductSerializer
+from .serializers import ProductSerializer, CommentSerializer, ReplySerializer, RatingSerializer, GetProductSerializer, ColorSerializer, SizeSerializer, SizeColorStockSerializer, ProductImageSerializer
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework import filters
+from rest_framework import filters, viewsets
 from rest_framework import generics
 from rest_framework import status
 from rest_framework.authtoken.models import Token
@@ -90,6 +90,20 @@ class GetProduct(APIView):
         
         # Return a paginated response
         return paginator.get_paginated_response(serializer.data)
+
+    def post(self, request, format=None):
+        # Require authentication and staff/superuser status for POST requests
+        if not request.user or not request.user.is_authenticated:
+            return Response({'detail': 'Authentication required.'}, status=status.HTTP_401_UNAUTHORIZED)
+        
+        if not (request.user.is_staff or request.user.is_superuser):
+            return Response({'detail': 'Only staff or admin users can create products.'}, status=status.HTTP_403_FORBIDDEN)
+        
+        serializer = ProductSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 
@@ -221,6 +235,62 @@ class ProductSearch(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
         serializer = ProductSerializer(product,context={"request": request})
         return Response(serializer.data)
+
+    def patch(self, request, id):
+        # Require authentication and staff/superuser status
+        if not request.user or not request.user.is_authenticated:
+            return Response({'detail': 'Authentication required.'}, status=status.HTTP_401_UNAUTHORIZED)
+        
+        if not (request.user.is_staff or request.user.is_superuser):
+            return Response({'detail': 'Only staff or admin users can update products.'}, status=status.HTTP_403_FORBIDDEN)
+        
+        try:
+            product = Product.objects.get(pk=id)
+        except Product.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        
+        print(request.data)
+        serializer = ProductSerializer(product, data=request.data, partial=True, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            print("ETA HAI TA")
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, id):
+        # Require authentication and staff/superuser status
+        if not request.user or not request.user.is_authenticated:
+            return Response({'detail': 'Authentication required.'}, status=status.HTTP_401_UNAUTHORIZED)
+        
+        if not (request.user.is_staff or request.user.is_superuser):
+            return Response({'detail': 'Only staff or admin users can update products.'}, status=status.HTTP_403_FORBIDDEN)
+        
+        try:
+            product = Product.objects.get(pk=id)
+        except Product.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = ProductSerializer(product, data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, id):
+        # Require authentication and staff/superuser status
+        if not request.user or not request.user.is_authenticated:
+            return Response({'detail': 'Authentication required.'}, status=status.HTTP_401_UNAUTHORIZED)
+        
+        if not (request.user.is_staff or request.user.is_superuser):
+            return Response({'detail': 'Only staff or admin users can delete products.'}, status=status.HTTP_403_FORBIDDEN)
+        
+        try:
+            product = Product.objects.get(pk=id)
+        except Product.DoesNotExist:
+            return Response({'detail': 'Product not found.'}, status=status.HTTP_404_NOT_FOUND)
+        
+        product.delete()
+        return Response({'detail': 'Product deleted successfully.'}, status=status.HTTP_204_NO_CONTENT)
 
 
         
@@ -431,3 +501,66 @@ class TaggedProductsView(APIView):
             products = Product.objects.all().order_by('-published_date')[:12]
         serializer = ProductSerializer(products,many=True,context={'request': request})
         return Response(serializer.data)
+
+
+# ViewSets for Color, Size, Category, Brand, and ProductImage
+class ColorViewSet(viewsets.ModelViewSet):
+    queryset = Color.objects.all()
+    serializer_class = ColorSerializer
+    permission_classes = [IsAuthenticated]
+
+class SizeViewSet(viewsets.ModelViewSet):
+    queryset = Size.objects.all()
+    serializer_class = SizeSerializer
+    permission_classes = [IsAuthenticated]
+
+class SizeColorStockViewSet(viewsets.ModelViewSet):
+    queryset = SizeColorStock.objects.all()
+    serializer_class = SizeColorStockSerializer
+    permission_classes = [IsAuthenticated]
+
+class ProductImageViewSet(viewsets.ModelViewSet):
+    queryset = ProductImage.objects.all()
+    serializer_class = ProductImageSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        queryset = ProductImage.objects.all()
+        
+        # Filter by color if provided
+        color = self.request.query_params.get('color')
+        if color:
+            queryset = queryset.filter(color_id=color)
+        
+        # Filter by product if provided
+        product = self.request.query_params.get('product')
+        if product:
+            queryset = queryset.filter(product_id=product)
+        
+        return queryset
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = None
+    permission_classes = [IsAuthenticated]
+    
+    def get_serializer_class(self):
+        from rest_framework import serializers
+        class CategorySerializer(serializers.ModelSerializer):
+            class Meta:
+                model = Category
+                fields = ['id', 'name']
+        return CategorySerializer
+
+class BrandViewSet(viewsets.ModelViewSet):
+    queryset = Brand.objects.all()
+    serializer_class = None
+    permission_classes = [IsAuthenticated]
+    
+    def get_serializer_class(self):
+        from rest_framework import serializers
+        class BrandSerializer(serializers.ModelSerializer):
+            class Meta:
+                model = Brand
+                fields = ['id', 'name']
+        return BrandSerializer

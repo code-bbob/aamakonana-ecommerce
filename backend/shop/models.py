@@ -2,6 +2,7 @@ import sys
 from django.db import models
 from userauth.models import User
 import uuid
+from datetime import date
 from django.conf import settings
 from django.utils import timezone
 from django.db.models import Avg
@@ -25,7 +26,7 @@ class Product(models.Model):
     description= RichTextField()
     meta_description = models.TextField(blank=True)
     meta_keywords = models.TextField(blank=True)
-    published_date = models.DateField(default=timezone.now)
+    published_date = models.DateField(default=date.today)
     trending = models.BooleanField(default=False)
     best_seller = models.BooleanField(default=False)
     featured = models.BooleanField(default=False)

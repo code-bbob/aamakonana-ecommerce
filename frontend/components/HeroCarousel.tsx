@@ -129,20 +129,20 @@ export default function HeroCarousel() {
 
                     <div className="ml-8">
                       {s.eyebrow && (
-                        <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[color:var(--line-color)] bg-[color:var(--foreground)/0.06] text-[color:var(--soft)] text-sm">
+                        <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[color:var(--line-color)] bg-[color:var(--foreground)/0.06] text-[color:var(--soft)] text-sm page-load-fade-in">
                           <span className="h-1.5 w-1.5 rounded-full bg-[color:var(--foreground)]" />
                           {s.eyebrow}
                         </span>
                       )}
-                      <h1 className="font-serif text-[color:var(--foreground)] text-4xl md:text-6xl leading-[1.05] tracking-[-0.03em] mt-4 mb-4">
+                      <h1 className="font-serif text-[color:var(--foreground)] text-4xl md:text-6xl leading-[1.05] tracking-[-0.03em] mt-4 mb-4 page-load-fade-in">
                         <span className="bg-clip-text text-transparent bg-gradient-to-r from-[color:var(--foreground)] via-[color:var(--foreground)] to-[rgba(201,164,107,1)]">
                           {s.title}
                         </span>
                       </h1>
-                      <p className="text-[color:var(--soft)] text-lg md:text-xl max-w-[60ch]">
+                      <p className="text-[color:var(--soft)] text-lg md:text-xl max-w-[60ch] page-load-fade-in">
                         {s.copy}
                       </p>
-                      <div className="mt-6 flex items-center gap-3">
+                      <div className="mt-6 flex items-center gap-3 page-load-fade-in">
                         <button
                           onClick={() => { go(i + 1); }}
                           className="px-5 py-2.5 hover:scale-105 hover:font-bold rounded-full bg-[color:var(--foreground)] text-[color:var(--background)] text-sm tracking-wide hover:opacity-95"
@@ -161,20 +161,20 @@ export default function HeroCarousel() {
                   <>
                     <div className="ml-8">
                       {s.eyebrow && (
-                        <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[color:var(--line-color)] bg-[color:var(--foreground)/0.06] text-[color:var(--soft)] text-sm">
+                        <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[color:var(--line-color)] bg-[color:var(--foreground)/0.06] text-[color:var(--soft)] text-sm page-load-fade-in">
                           <span className="h-1.5 w-1.5 rounded-full bg-[color:var(--foreground)]" />
                           {s.eyebrow}
                         </span>
                       )}
-                      <h1 className="font-serif text-[color:var(--foreground)] text-4xl md:text-6xl leading-[1.05] tracking-[-0.03em] mt-4 mb-4">
+                      <h1 className="font-serif text-[color:var(--foreground)] text-4xl md:text-6xl leading-[1.05] tracking-[-0.03em] mt-4 mb-4 page-load-fade-in">
                         <span className="bg-clip-text text-transparent bg-gradient-to-r from-[color:var(--foreground)] via-[color:var(--foreground)] to-[rgba(201,164,107,1)]">
                           {s.title}
                         </span>
                       </h1>
-                      <p className="text-[color:var(--soft)] text-lg md:text-xl max-w-[60ch]">
+                      <p className="text-[color:var(--soft)] text-lg md:text-xl max-w-[60ch] page-load-fade-in">
                         {s.copy}
                       </p>
-                      <div className="mt-6 flex items-center gap-3">
+                      <div className="mt-6 flex items-center gap-3 page-load-fade-in">
                         <button
                           onClick={() => { go(i + 1); }}
                           className="px-5 py-2.5 hover:font-bold hover:scale-105 rounded-full bg-[color:var(--foreground)] text-[color:var(--background)] text-sm tracking-wide hover:opacity-95"

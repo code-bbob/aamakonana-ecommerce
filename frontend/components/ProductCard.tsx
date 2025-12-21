@@ -11,7 +11,7 @@ interface ProductCardProps {
     name: string;
     price: number;
     old_price?: number;
-    category: string;
+    category_name: string;
     images: Array<{ image: string }>;
     ratings?: {
       stats: {
@@ -74,7 +74,7 @@ export function ProductCard({ product }: ProductCardProps) {
         <div className="space-y-3">
           <div>
             <p className="text-xs text-gray-500 uppercase tracking-widest mb-1 font-medium">
-              {product.category}
+              {product.category_name}
             </p>
             <h3 className="text-base font-light text-gray-900 group-hover:text-black transition-colors line-clamp-2">
               {product.name}
