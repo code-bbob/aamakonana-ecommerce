@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Product, Comment, Repliess, ProductImage, Rating, ProductAttribute, Variant, Color, Size, SizeColorStock
 from django.contrib.auth.models import User
+from django.db.models import Sum
 
 class ReplySerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField() #yo garexi i can define serializers for user by myself i.e. user ko kun attribute pathaune vanera
@@ -154,6 +155,7 @@ class ProductSerializer(serializers.ModelSerializer):
     ratings = serializers.SerializerMethodField()
     category_name = serializers.SerializerMethodField()
     sub_category_name = serializers.SerializerMethodField()
+    stock = serializers.SerializerMethodField()
     attributes = ProductAttributeSerializer(many=True, read_only=True)
     variants = VariantSerializer(many=True, read_only=True)
     sizes = SizeSerializer(many=True, read_only=True)
@@ -189,3 +191,7 @@ class ProductSerializer(serializers.ModelSerializer):
     
     def get_sub_category_name(self, obj):
         return obj.sub_category.name if obj.sub_category else None
+    
+    def get_stock(self, obj):
+        total_stock = SizeColorStock.objects.filter(product_id=obj.product_id).aggregate(total=Sum('stock'))['total']
+        return total_stock if total_stock is not None else 0

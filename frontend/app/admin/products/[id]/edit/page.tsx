@@ -236,14 +236,23 @@ export default function EditProduct() {
             );
           }
 
-          // Load stocks
-          if (product.size_color_stocks && product.size_color_stocks.length > 0) {
-            const loadedStocks = product.size_color_stocks.map((stock: APIStock) => ({
-              id: stock.id.toString(),
-              colorId: stock.color_id.toString(),
-              sizeId: stock.size.toString(),
-              quantity: stock.stock,
-            }));
+          // Load stocks from sizes color_stocks
+          const loadedStocks: StockData[] = [];
+          if (product.sizes && product.sizes.length > 0) {
+            product.sizes.forEach((size: any) => {
+              if (size.color_stocks && size.color_stocks.length > 0) {
+                size.color_stocks.forEach((stock: any) => {
+                  loadedStocks.push({
+                    id: stock.id.toString(),
+                    colorId: stock.color_id.toString(),
+                    sizeId: size.id.toString(),
+                    quantity: stock.stock,
+                  });
+                });
+              }
+            });
+          }
+          if (loadedStocks.length > 0) {
             setStocks(loadedStocks);
           }
           
@@ -712,7 +721,7 @@ export default function EditProduct() {
       }
 
       setSuccess('Product updated successfully!');
-      setTimeout(() => router.push('/admin/products'), 2000);
+      router.push('/admin/products');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
@@ -1134,15 +1143,19 @@ export default function EditProduct() {
                         {color.name}
                       </h3>
                       <div className="space-y-2">
-                        {sizes.map(size => (
-                          <StockInputRow
-                            key={`${color.id}-${size.id}`}
-                            colorId={color.id}
-                            sizeName={size.name}
-                            sizeId={size.id}
-                            onAdd={handleAddStock}
-                          />
-                        ))}
+                        {sizes.map(size => {
+                          const existingStock = stocks.find(s => s.colorId === color.id && s.sizeId === size.id);
+                          return (
+                            <StockInputRow
+                              key={`${color.id}-${size.id}`}
+                              colorId={color.id}
+                              sizeName={size.name}
+                              sizeId={size.id}
+                              onAdd={handleAddStock}
+                              initialQuantity={existingStock?.quantity || ''}
+                            />
+                          );
+                        })}
                       </div>
                     </div>
                   ))}
@@ -1195,13 +1208,15 @@ function StockInputRow({
   sizeName,
   sizeId,
   onAdd,
+  initialQuantity = '',
 }: {
   colorId: string;
   sizeName: string;
   sizeId: string;
   onAdd: (colorId: string, sizeId: string, quantity: number) => void;
+  initialQuantity?: number | '';
 }) {
-  const [quantity, setQuantity] = useState<number | ''>('');
+  const [quantity, setQuantity] = useState<number | ''>(initialQuantity);
 
   const handleChange = (value: number | '') => {
     setQuantity(value);
