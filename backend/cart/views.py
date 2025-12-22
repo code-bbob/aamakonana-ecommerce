@@ -12,6 +12,26 @@ import datetime
 from django.core.mail import EmailMultiAlternatives
 from django.utils.html import strip_tags
 from .tasks import send_order_email  # Import the Celery task
+from rest_framework.pagination import PageNumberPagination
+from django.db.models import Q
+
+
+class OrderPagination(PageNumberPagination):
+    page_size = 100
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+    
+    def get_paginated_response(self, data):
+        return Response({
+            'links': {
+                'next': self.get_next_link(),
+                'previous': self.get_previous_link()
+            },
+            'count': self.page.paginator.count,
+            'total_pages': self.page.paginator.num_pages,
+            'current_page': self.page.number,
+            'results': data
+        })
 
 
 class CheckoutAPIView(APIView):
@@ -136,9 +156,33 @@ class OrderAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        orders = Order.objects.all()
-        serializer = OrderSerializer(orders, many=True)
-        return Response(serializer.data)
+        # Get search query parameter
+        search_query = request.query_params.get('search', '').strip()
+        # Get status filter parameter
+        status_filter = request.query_params.get('status', '').strip()
+        
+        # Base queryset
+        orders = Order.objects.all().order_by('-created_at')
+        
+        # Filter by search query if provided
+        if search_query:
+            orders = orders.filter(
+                Q(delivery__first_name__icontains=search_query) |
+                Q(delivery__last_name__icontains=search_query) |
+                Q(delivery__email__icontains=search_query) |
+                Q(id__icontains=search_query)
+            )
+        
+        # Filter by status if provided
+        if status_filter:
+            orders = orders.filter(status=status_filter)
+        
+        # Paginate the queryset
+        paginator = OrderPagination()
+        paginated_orders = paginator.paginate_queryset(orders, request, view=self)
+        serializer = OrderSerializer(paginated_orders, many=True)
+        
+        return paginator.get_paginated_response(serializer.data)
     
     def post(self, request):
         data = request.data

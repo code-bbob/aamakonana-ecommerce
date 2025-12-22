@@ -181,6 +181,24 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
         quantity: quantity,
         image: mainImage,
       });
+      
+      // Track add to cart event in Google Analytics
+      if (typeof window !== 'undefined' && (window as any).gtag) {
+        (window as any).gtag('event', 'add_to_cart', {
+          currency: 'USD',
+          value: getFinalPrice() * quantity,
+          items: [
+            {
+              item_id: product.product_id,
+              item_name: product.name,
+              price: getFinalPrice(),
+              quantity: quantity,
+              item_category: product.category_name,
+            }
+          ]
+        });
+      }
+      
       setSelectedColor(null);
       setSelectedSize(null);
       setQuantity(1);

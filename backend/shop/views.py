@@ -10,7 +10,7 @@ from rest_framework import status
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate
 from rest_framework.pagination import PageNumberPagination
-from django.db.models import Avg, Count
+from django.db.models import Avg, Count, Q
 from django.conf import settings
 from rest_framework.permissions import IsAuthenticated
 
@@ -23,7 +23,7 @@ from rest_framework.permissions import IsAuthenticated
 #function based view ma image ko right path janna only relative path like / media/shop/images bata janxa so class based use grya
 
 class CustomPagination(PageNumberPagination):
-    page_size = 20
+    page_size = 100
     page_size_query_param = 'page_size'
     max_page_size = 100
     
@@ -105,6 +105,37 @@ class GetProduct(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+class AdminProductSearch(APIView):
+    """Search and list products with pagination for admin panel"""
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request, format=None):
+        # Check if user is staff/admin
+        if not (request.user.is_staff or request.user.is_superuser):
+            return Response({'detail': 'Only staff or admin users can access this.'}, status=status.HTTP_403_FORBIDDEN)
+        
+        # Get search query parameter
+        search_query = request.query_params.get('search', '').strip()
+        
+        # Base queryset
+        queryset = Product.objects.all().order_by('-product_id')
+        
+        # Filter by search query if provided
+        if search_query:
+            queryset = queryset.filter(
+                Q(name__icontains=search_query) |
+                Q(description__icontains=search_query) |
+                Q(category__name__icontains=search_query) |
+                Q(brand__name__icontains=search_query)
+            )
+        
+        # Paginate the queryset
+        paginator = CustomPagination()
+        paginated_queryset = paginator.paginate_queryset(queryset, request, view=self)
+        serializer = ProductSerializer(paginated_queryset, many=True, context={'request': request})
+        
+        return paginator.get_paginated_response(serializer.data)
 
 
 class GetDealProduct(APIView):

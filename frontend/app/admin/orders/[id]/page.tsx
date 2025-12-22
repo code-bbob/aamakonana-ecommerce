@@ -328,9 +328,9 @@ function OrderDetailContent() {
                         {item.size_name || 'N/A'}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">{item.quantity}</td>
-                      <td className="px-6 py-4 text-sm text-gray-900">₹{item.price}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">Rs. {item.price}</td>
                       <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                        ₹{item.price * item.quantity}
+                        Rs. {item.price * item.quantity}
                       </td>
                     </tr>
                   ))}
@@ -345,21 +345,21 @@ function OrderDetailContent() {
             <div className="space-y-2">
               <div className="flex justify-between text-gray-900">
                 <span>Subtotal:</span>
-                <span>₹{order.delivery?.subtotal || 0}</span>
+                <span>Rs. {order.delivery?.subtotal || 0}</span>
               </div>
               <div className="flex justify-between text-gray-900">
                 <span>Shipping Cost:</span>
-                <span>₹{order.delivery?.shipping_cost || 0}</span>
+                <span>Rs. {order.delivery?.shipping_cost || 0}</span>
               </div>
               {order.delivery?.discount > 0 && (
                 <div className="flex justify-between text-green-600">
                   <span>Discount:</span>
-                  <span>-₹{order.delivery?.discount || 0}</span>
+                  <span>-Rs. {order.delivery?.discount || 0}</span>
                 </div>
               )}
               <div className="border-t border-gray-200 pt-2 mt-4 flex justify-between text-lg font-semibold text-gray-900">
                 <span>Total:</span>
-                <span>₹{order.delivery?.payment_amount || 0}</span>
+                <span>Rs. {order.delivery?.payment_amount || 0}</span>
               </div>
             </div>
           </div>

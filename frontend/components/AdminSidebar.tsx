@@ -36,22 +36,22 @@ export function AdminSidebar({ activeMenu }: SidebarProps) {
     { icon: BarChart3, label: 'Dashboard', href: '/admin', active: activeMenu === 'dashboard' },
     { icon: Package, label: 'Products', href: '/admin/products', active: activeMenu === 'products' },
     { icon: ShoppingCart, label: 'Orders', href: '/admin/orders', active: activeMenu === 'orders' },
-    { icon: Users, label: 'Users', href: '/admin/users', active: activeMenu === 'users' },
-    { icon: Settings, label: 'Settings', href: '/admin/settings', active: activeMenu === 'settings' },
+    // { icon: Users, label: 'Users', href: '/admin/users', active: activeMenu === 'users' },
+    // { icon: Settings, label: 'Settings', href: '/admin/settings', active: activeMenu === 'settings' },
   ];
 
   return (
     <div
       className={`${
         sidebarOpen ? 'w-64' : 'w-20'
-      } bg-gray-900 text-white transition-all duration-300 flex flex-col`}
+      } bg-white text-gray-900 transition-all duration-300 flex flex-col border-r border-gray-200`}
     >
-      <div className="p-6 border-b border-gray-700">
+      <div className="p-6 border-b border-gray-200">
         <Link href="/admin" className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-pink-500 rounded-lg flex items-center justify-center">
-            <BarChart3 size={24} />
+          <div className="w-10 h-10 bg-black rounded-lg flex items-center justify-center">
+            <BarChart3 size={24} className="text-white" />
           </div>
-          {sidebarOpen && <span className="font-bold text-lg">Admin</span>}
+          {sidebarOpen && <span className="font-bold text-lg text-gray-900">Admin</span>}
         </Link>
       </div>
 
@@ -62,8 +62,8 @@ export function AdminSidebar({ activeMenu }: SidebarProps) {
             href={item.href}
             className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
               item.active
-                ? 'bg-pink-500 text-white'
-                : 'text-gray-400 hover:text-white hover:bg-gray-800'
+                ? 'bg-black text-white'
+                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
             }`}
           >
             <item.icon size={20} />
@@ -72,14 +72,14 @@ export function AdminSidebar({ activeMenu }: SidebarProps) {
         ))}
       </nav>
 
-      <div className="border-t border-gray-700 p-4 space-y-3">
-        <button className="w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors">
+      <div className="border-t border-gray-200 p-4 space-y-3">
+        <button className="w-full flex items-center gap-3 px-4 py-3 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
           <Settings size={20} />
           {sidebarOpen && <span className="text-sm">Settings</span>}
         </button>
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-red-400 hover:bg-gray-800 rounded-lg transition-colors"
+          className="w-full flex items-center gap-3 px-4 py-3 text-gray-600 hover:text-red-600 hover:bg-gray-100 rounded-lg transition-colors"
         >
           <LogOut size={20} />
           {sidebarOpen && <span className="text-sm">Logout</span>}

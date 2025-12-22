@@ -4,8 +4,10 @@ import uuid
 from django.utils import timezone
 class Order(models.Model):
     STATUS_CHOICES = [
-        ('Placed','Placed'),
-        ('Cleared','Cleared')
+        ('Pending','Pending'),
+        ('Dispatched','Dispatched'),
+        ('Cancelled','Cancelled'),
+        ('Cleared','Cleared'),
     ]
     id = models.UUIDField(primary_key=True,default=uuid.uuid4)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='orders', on_delete=models.CASCADE, null=True, blank=True)

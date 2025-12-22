@@ -18,6 +18,7 @@ router.register(r'brand', views.BrandViewSet)
 urlpatterns = [
     path('', include(router.urls)),
     path('api/', views.GetProduct.as_view(), name='api'),
+    path('api/admin/search/', views.AdminProductSearch.as_view(), name='admin_product_search'),
     path('api/tagged/', views.TaggedProductsView.as_view(), name='tagged_products'),
     path('api/deals/', views.GetDealProduct.as_view(), name='api'),
     path('api/navsearch/', views.NavSearchView.as_view(), name='search'),

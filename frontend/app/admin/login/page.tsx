@@ -60,30 +60,30 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <div className="bg-gray-800 rounded-lg shadow-xl p-8 border border-gray-700">
+        <div className="bg-white rounded-lg shadow-xl p-8 border border-gray-200">
           {/* Header */}
           <div className="flex justify-center mb-8">
-            <div className="w-12 h-12 bg-pink-500 rounded-lg flex items-center justify-center">
+            <div className="w-12 h-12 bg-black rounded-lg flex items-center justify-center">
               <LogIn size={28} className="text-white" />
             </div>
           </div>
 
-          <h1 className="text-2xl font-bold text-center text-white mb-2">Admin Panel</h1>
-          <p className="text-center text-gray-400 text-sm mb-8">Sign in to your admin account</p>
+          <h1 className="text-2xl font-bold text-center text-gray-900 mb-2">Admin Panel</h1>
+          <p className="text-center text-black text-sm mb-8">Sign in to your admin account</p>
 
           {/* Error Message */}
           {error && (
-            <div className="mb-6 p-4 bg-red-900/20 border border-red-700 rounded-lg">
-              <p className="text-red-400 text-sm">{error}</p>
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-red-600 text-sm">{error}</p>
             </div>
           )}
 
           {/* Form */}
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
                 Email Address
               </label>
               <input
@@ -92,13 +92,13 @@ export default function AdminLogin() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="admin@example.com"
-                className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500"
+                className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:border-gray-400 focus:ring-1 focus:ring-gray-400"
                 required
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
                 Password
               </label>
               <input
@@ -107,7 +107,7 @@ export default function AdminLogin() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500"
+                className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:border-gray-400 focus:ring-1 focus:ring-gray-400"
                 required
               />
             </div>
@@ -115,14 +115,14 @@ export default function AdminLogin() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-6 py-2 px-4 bg-pink-500 hover:bg-pink-600 disabled:bg-pink-600 disabled:opacity-50 text-white font-medium rounded-lg transition-colors"
+              className="w-full mt-6 py-2 px-4 bg-black hover:scale-105 disabled:bg-gray-400 disabled:opacity-50 text-white font-medium rounded-lg transition-colors"
             >
               {loading ? 'Signing in...' : 'Sign In'}
             </button>
           </form>
 
           {/* Footer */}
-          <p className="text-center text-gray-400 text-xs mt-6">
+          <p className="text-center text-gray-600 text-xs mt-6">
             Staff and superuser accounts only
           </p>
         </div>
