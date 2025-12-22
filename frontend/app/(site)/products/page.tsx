@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ProductCard } from '@/components/ProductCard';
 import { ChevronLeft, ChevronRight, X, Search } from 'lucide-react';
 
@@ -369,9 +370,11 @@ export default function ProductsPage() {
                           onClick={() => handleSuggestionClick(product)}
                           className="w-full flex items-center gap-3 p-3 hover:bg-gray-100 transition-colors border-b border-gray-100 last:border-b-0 text-left"
                         >
-                          <img
+                          <Image
                             src={product.images[0]?.image || '/images/placeholder.png'}
                             alt={product.name}
+                            width={48}
+                            height={48}
                             className="w-12 h-12 object-cover rounded"
                           />
                           <div className="flex-1 min-w-0">

@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { AdminProtected } from '@/components/AdminProtected';
-import { X, Plus } from 'lucide-react';
+import { X } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -74,6 +75,16 @@ interface APIStock {
   color_id: number;
   size: number;
   stock: number;
+}
+
+interface ColorStock {
+  id: number;
+  color_id: number;
+  stock: number;
+}
+
+interface SizeWithColorStocks extends APISize {
+  color_stocks?: ColorStock[];
 }
 
 interface APIProduct {
@@ -239,9 +250,9 @@ export default function EditProduct() {
           // Load stocks from sizes color_stocks
           const loadedStocks: StockData[] = [];
           if (product.sizes && product.sizes.length > 0) {
-            product.sizes.forEach((size: any) => {
+            product.sizes.forEach((size: SizeWithColorStocks) => {
               if (size.color_stocks && size.color_stocks.length > 0) {
-                size.color_stocks.forEach((stock: any) => {
+                size.color_stocks.forEach((stock: ColorStock) => {
                   loadedStocks.push({
                     id: stock.id.toString(),
                     colorId: stock.color_id.toString(),
@@ -275,22 +286,7 @@ export default function EditProduct() {
             featured: product.featured || false,
           };
           setOriginalFormData(originalData);
-          if (product.colors && product.colors.length > 0) {
-            const originalColorsData = product.colors.map((color: APIColor) => ({
-              id: color.id.toString(),
-              name: color.name,
-              hex: color.hex || '#000000',
-              images: [],
-            }));
-            // Store for reference if needed later
-          }
-          if (product.sizes && product.sizes.length > 0) {
-            const originalSizesData = product.sizes.map((size: APISize) => ({
-              id: size.id.toString(),
-              name: size.name,
-            }));
-            // Store for reference if needed later
-          }
+          // Colors and sizes data loaded separately above
         }
       }
     } catch (err) {
@@ -778,46 +774,50 @@ export default function EditProduct() {
           </DialogContent>
         </Dialog>
 
-        <div className="container mx-auto px-4 py-8 max-h-[calc(100vh-80px)] overflow-y-auto">
-          <Link href="/admin/products" className="text-pink-500 hover:text-pink-600 mb-6 inline-block">
-            ← Back to Products
+        <div className="container mx-auto px-4 py-8">
+          <Link href="/admin/products" className="my-6 inline-block">
+            <button className="flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-900 rounded-lg hover:bg-gray-300 transition-colors font-medium">
+              ← Back to Products
+            </button>
           </Link>
 
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg mb-6">
-              {error}
-            </div>
-          )}
+          <div className="max-w-2xl mx-auto">
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg mb-6">
+                {error}
+              </div>
+            )}
 
-          {success && (
-            <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg mb-6">
-              {success}
-            </div>
-          )}
+            {success && (
+              <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg mb-6">
+                {success}
+              </div>
+            )}
 
-          {/* Progress Indicator */}
-          <div className="mb-8">
-            <div className="flex items-center justify-between">
-              {(['product', 'colors', 'sizes', 'stock'] as const).map((s, idx) => (
-                <div key={s} className="flex items-center flex-1">
-                  <div
-                    className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold ${
-                      step === s || (idx === 0 && step === 'product')
-                        ? 'bg-pink-500 text-white'
-                        : idx < (['product', 'colors', 'sizes', 'stock'] as const).indexOf(step)
-                        ? 'bg-green-500 text-white'
-                        : 'bg-gray-300 text-gray-700'
-                    }`}
-                  >
-                    {idx + 1}
+            {/* Progress Indicator */}
+            <div className="mb-8">
+              <div className="flex items-center justify-between">
+                {(['product', 'colors', 'sizes', 'stock'] as const).map((s, idx) => (
+                  <div key={s} className="flex items-center flex-1">
+                    <div
+                      className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold ${
+                        step === s || (idx === 0 && step === 'product')
+                          ? 'bg-pink-500 text-white'
+                          : idx < (['product', 'colors', 'sizes', 'stock'] as const).indexOf(step)
+                          ? 'bg-green-500 text-white'
+                          : 'bg-gray-300 text-gray-700'
+                      }`}
+                    >
+                      {idx + 1}
+                    </div>
+                    <div className={`flex-1 h-1 ${
+                      idx === (['product', 'colors', 'sizes', 'stock'] as const).length - 1
+                        ? 'hidden'
+                        : ''
+                    }`} />
                   </div>
-                  <div className={`flex-1 h-1 ${
-                    idx === (['product', 'colors', 'sizes', 'stock'] as const).length - 1
-                      ? 'hidden'
-                      : ''
-                  }`} />
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
 
@@ -1034,7 +1034,7 @@ export default function EditProduct() {
                           <div className="grid grid-cols-4 gap-2 mt-3">
                             {color.images.map(img => (
                               <div key={img.id} className="relative group">
-                                <img src={img.preview} alt="Preview" className="w-full h-24 object-cover rounded" />
+                                <Image src={img.preview} alt="Preview" width={96} height={96} className="w-full h-24 object-cover rounded" />
                                 <button
                                   type="button"
                                   onClick={() => removeColorImage(color.id, img.id)}

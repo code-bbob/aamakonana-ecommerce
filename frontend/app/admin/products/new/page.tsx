@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { AdminProtected } from '@/components/AdminProtected';
 import { X, Plus } from 'lucide-react';
 import {
@@ -1008,7 +1009,7 @@ export default function AddProduct() {
                             <div className="grid grid-cols-4 gap-2 mt-3">
                               {color.images.map(img => (
                                 <div key={img.id} className="relative group">
-                                  <img src={img.preview} alt="Preview" className="w-full h-24 object-cover rounded" />
+                                  <Image src={img.preview} alt="Preview" width={96} height={96} className="w-full h-24 object-cover rounded" />
                                   <button
                                     type="button"
                                     onClick={() => removeColorImage(color.id, img.id)}

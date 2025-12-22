@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { AdminProtected } from '@/components/AdminProtected';
 import {
   Plus,
@@ -175,9 +176,11 @@ export default function AdminProducts() {
                         <td className="py-3 px-4">
                           <div className="flex items-center gap-3">
                             {product.images && product.images[0] && (
-                              <img
+                              <Image
                                 src={product.images[0].image}
                                 alt={product.name}
+                                width={40}
+                                height={40}
                                 className="w-10 h-10 rounded object-cover"
                               />
                             )}
@@ -233,7 +236,7 @@ export default function AdminProducts() {
             <DialogHeader>
               <DialogTitle>Delete Product</DialogTitle>
               <DialogDescription>
-                Are you sure you want to delete "{deleteDialog.productName}"? This action cannot be undone.
+                Are you sure you want to delete &quot;{deleteDialog.productName}&quot;? This action cannot be undone.
               </DialogDescription>
             </DialogHeader>
             <DialogFooter className="flex gap-3">
