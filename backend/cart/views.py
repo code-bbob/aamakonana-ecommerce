@@ -103,7 +103,7 @@ class CheckoutAPIView(APIView):
 
 class OrderDetailAPIView(APIView):
     """Get a specific order by ID"""
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, order_id):
         try:
@@ -112,16 +112,31 @@ class OrderDetailAPIView(APIView):
             return Response(serializer.data)
         except Order.DoesNotExist:
             return Response({'detail': 'Order not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+    def patch(self, request, order_id):
+        """Update order status"""
+        try:
+            order = Order.objects.get(id=order_id)
+            data = request.data
+            
+            # Update status if provided
+            if 'status' in data:
+                order.status = data['status']
+            
+            order.save()
+            serializer = OrderSerializer(order)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Order.DoesNotExist:
+            return Response({'detail': 'Order not found'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class OrderAPIView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
-            orders = Order.objects.filter(user=request.user)
-        else:
-            orders = Order.objects.filter(user=None)
+        orders = Order.objects.all()
         serializer = OrderSerializer(orders, many=True)
         return Response(serializer.data)
     
