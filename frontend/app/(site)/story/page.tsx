@@ -218,7 +218,7 @@ export default function StoryPage() {
         <div className="w-full max-w-6xl">
         
         {/* Progress UI */}
-        <div className="mb-10 text-center">
+        <div className="mb-2 text-center">
           <p className="text-sm font-medium text-gray-600 mb-2">
             Page {Math.round(displayProgress * 2 + 1)} of {spreads.length * 2}
           </p>
@@ -233,7 +233,7 @@ export default function StoryPage() {
         <div className="relative shadow-2xl rounded-xl bg-white" style={{ perspective: '2000px', overflow: 'visible' }}>
           
           {/* Static Background Layer */}
-          <div className="grid grid-cols-2" style={{ minHeight: '600px' }}>
+          <div className="grid grid-cols-2" style={{ minHeight: '550px' }}>
             {/* Left Static Page */}
             <div className="relative border-r border-amber-50">
                 <Page side={baseLeftSide} pageNumber={baseLeftNum} />
