@@ -58,7 +58,7 @@ interface Color {
 interface Product {
   product_id: string;
   name: string;
-  category: string;
+  category_name: string;
   price: number;
   old_price: number | null;
   before_deal_price: number | null;
@@ -183,8 +183,8 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
       });
       
       // Track add to cart event in Google Analytics
-      if (typeof window !== 'undefined' && (window as any).gtag) {
-        (window as any).gtag('event', 'add_to_cart', {
+      if (typeof window !== 'undefined' && 'gtag' in window) {
+        (window as Window & { gtag?: (event: string, action: string, data: Record<string, unknown>) => void }).gtag?.('event', 'add_to_cart', {
           currency: 'USD',
           value: getFinalPrice() * quantity,
           items: [
@@ -302,7 +302,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
 
           <div className="flex flex-col justify-between">
             <div>
-              <p className="text-sm text-gray-500 uppercase tracking-wide">{product.category}</p>
+              <p className="text-sm text-gray-500 uppercase tracking-wide">{product.category_name}</p>
               <h1 className="text-4xl font-bold text-gray-900 mt-2 mb-4">{product.name}</h1>
 
               <div className="flex items-center gap-4 mb-6">

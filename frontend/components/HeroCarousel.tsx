@@ -167,7 +167,7 @@ export default function HeroCarousel() {
                         </span>
                       )}
                       <h1 className="font-serif text-[color:var(--foreground)] text-4xl md:text-6xl leading-[1.05] tracking-[-0.03em] mt-4 mb-4 page-load-fade-in">
-                        <span className="bg-clip-text text-transparent bg-gradient-to-r from-[color:var(--foreground)] via-[color:var(--foreground)] to-[rgba(201,164,107,1)]">
+                        <span className="bg-clip-text text-transparent bg-gradient-to-r from-[color:var(--foreground)] to-purple-800">
                           {s.title}
                         </span>
                       </h1>

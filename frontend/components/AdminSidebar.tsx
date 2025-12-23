@@ -7,7 +7,6 @@ import {
   BarChart3,
   Package,
   ShoppingCart,
-  Users,
   Settings,
   LogOut,
 } from 'lucide-react';

@@ -15,15 +15,15 @@ export default function SiteLayout({
         <Link href="/products" className="underline font-semibold">Shop Now</Link>
       </header>
 
-      <header className="sticky top-0 z-40 bg-purple-200  backdrop-blur-3xl backdrop-saturate-50 border-b border-[color:var(--line-color)] ">
-        <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
+      <header className="sticky top-0 z-40 bg-purple-300  backdrop-blur-3xl backdrop-saturate-50 border-b border-[color:var(--line-color)] ">
+        <div className=" px-15 flex items-center justify-between">
           <div className="flex items-center gap-2 font-semibold tracking-tight">
             <Image src="/images/logo.png" alt="Aama Ko Nana Logo" width={80} height={80} className="-mt-3 -mb-3"/>
             <Link href="/" className="text-lg font-playfair text-[color:var(--foreground)]">Aama Ko Nana</Link>
           </div>
           <nav className="hidden md:flex items-center gap-5" aria-label="Primary">
             <Link href="/products" className=" hover:text-[color:var(--foreground)] transition-colors">Shop</Link>
-            <a className=" hover:text-[color:var(--foreground)] transition-colors" href="#story">Story</a>
+            <Link href="/story" className=" hover:text-[color:var(--foreground)] transition-colors">Story</Link>
             <a className=" hover:text-[color:var(--foreground)] transition-colors" href="#materials">Materials</a>
             <a className="hover:text-[color:var(--foreground)] transition-colors" href="#care">Care</a>
             <a className="hover:text-[color:var(--foreground)] transition-colors" href="#newsletter">Updates</a>

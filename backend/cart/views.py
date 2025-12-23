@@ -123,7 +123,7 @@ class CheckoutAPIView(APIView):
 
 class OrderDetailAPIView(APIView):
     """Get a specific order by ID"""
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get(self, request, order_id):
         try:

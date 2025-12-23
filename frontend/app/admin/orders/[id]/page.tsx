@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { AdminProtected } from '@/components/AdminProtected';
 import {
@@ -88,7 +88,10 @@ function OrderDetailContent() {
   };
 
   useEffect(() => {
-    fetchOrderDetails();
+    if (orderId) {
+      fetchOrderDetails();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [orderId]);
 
   const handleSaveStatus = async () => {
