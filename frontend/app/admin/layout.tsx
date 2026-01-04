@@ -23,9 +23,9 @@ export default function AdminLayout({
 
   return (
     <AdminLayoutProvider>
-      <div className="flex h-screen bg-gray-100">
+      <div className="flex h-screen w-screen bg-gray-100 overflow-hidden">
         <AdminSidebar activeMenu={getActiveMenu()} />
-        <div className="flex-1 flex flex-col overflow-y-auto">
+        <div className="flex-1 flex flex-col h-screen w-full overflow-y-auto">
           {children}
         </div>
       </div>

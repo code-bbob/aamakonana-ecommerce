@@ -255,7 +255,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                   <CarouselContent>
                     {product.images.map((img, idx) => (
                       <CarouselItem key={idx}>
-                        <div className="relative w-full h-[500px]">
+                        <div className="relative w-full h-auto aspect-square flex items-center justify-center bg-gray-50">
                           <Image
                             src={img.image}
                             alt={`Product view ${idx + 1}`}
@@ -524,16 +524,16 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
       {/* Image Modal */}
       {isModalOpen && (
         <div 
-          className="fixed inset-0 bg-black/50 z-[9999] flex items-center justify-center p-4"
+          className="fixed inset-0 bg-black/50 z-[9999] flex items-center justify-center"
           onClick={() => setIsModalOpen(false)}
         >
           <div 
-            className="relative w-full max-w-2xl aspect-square bg-white rounded-lg shadow-2xl overflow-hidden"
+            className="relative w-full max-w-2xl mt-8 aspect-square bg-white rounded-lg shadow-2xl overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             <button
               onClick={() => setIsModalOpen(false)}
-              className="absolute top-4 right-4 text-gray-600 hover:text-gray-900 transition-colors z-50 p-2 rounded-lg hover:bg-gray-100"
+              className="absolute top-4 right-4 text-white hover:text-white transition-colors z-50 p-2 rounded-lg hover:bg-gray"
               aria-label="Close modal"
             >
               <X size={24} />
@@ -548,7 +548,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                         src={img.image}
                         alt={`Product view ${idx + 1}`}
                         fill
-                        className="object-contain p-4"
+                        className="object-contain"
                         sizes="600px"
                       />
                     </div>

@@ -46,7 +46,7 @@ export function ProductCard({ product }: ProductCardProps) {
               src={showSecondaryImage && product.images.length > 1 ? product.images[1].image : product.images[0].image}
               alt={product.name}
               fill
-              className="object-contain group-hover:scale-105 transition-all duration-500"
+              className="object-cover group-hover:scale-105 transition-all duration-500"
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
           )}

@@ -49,6 +49,7 @@ class GetProduct(APIView):
         # Instead of a single 'ordering' value, expect multiple ordering parameters
         ordering_fields = request.query_params.getlist('ordering')
         brand = request.query_params.get('brand')
+        category = request.query_params.get('category')
         # Base queryset annotated with average rating and rating count
         queryset = Product.objects.all().annotate(
             rating=Avg('ratings__rating'),
@@ -74,6 +75,13 @@ class GetProduct(APIView):
         if brand:
             try:
                 queryset = queryset.filter(brand__name__icontains=brand)
+            except (ValueError, TypeError,):
+                pass
+        if category:
+            try:
+                print(category)
+                queryset = queryset.filter(category__name__icontains=category)
+                print(queryset)
             except (ValueError, TypeError,):
                 pass
         # Apply ordering based on multiple parameters

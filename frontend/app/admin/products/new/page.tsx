@@ -729,7 +729,7 @@ export default function AddProduct() {
           </div>
         </div>
 
-        <div className="flex-1 overflow-auto p-6">
+        <div className="flex-1 p-6">
           <div className="max-w-4xl mx-auto">
             {/* Progress Indicator */}
             <div className="mb-8 flex gap-2">

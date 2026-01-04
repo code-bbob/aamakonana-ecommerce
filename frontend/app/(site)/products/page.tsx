@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { ProductCard } from '@/components/ProductCard';
 import { ChevronLeft, ChevronRight, X, Search } from 'lucide-react';
 
@@ -34,50 +35,69 @@ interface ProductsResponse {
   results: Product[];
 }
 
-export default function ProductsPage() {
+// Categories for the filter sidebar
+const CATEGORIES = ['All', 'Moms', 'Babies', 'Gifts'];
+
+function ProductsContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // State
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [sortBy, setSortBy] = useState('');
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  
+  // Search state
   const [searchSuggestions, setSearchSuggestions] = useState<Product[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const [filters, setFilters] = useState({
-    priceRange: [0, 100000],
-    rating: 0,
-  });
+  // Derived state from URL
+  const currentPage = Number(searchParams.get('page')) || 1;
+  const currentCategory = searchParams.get('category') || 'All';
+  const currentSearch = searchParams.get('search') || '';
+  const currentSort = searchParams.get('ordering') || '';
+  const minPrice = Number(searchParams.get('min_price')) || 0;
+  const maxPrice = Number(searchParams.get('max_price')) || 100000;
+  const minRating = Number(searchParams.get('min_rating')) || 0;
 
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        const params = new URLSearchParams({
-          page: currentPage.toString(),
-        });
-
-        if (sortBy) {
-          params.append('ordering', sortBy);
+        const params = new URLSearchParams();
+        params.set('page', currentPage.toString());
+        
+        if (currentCategory && currentCategory !== 'All') {
+          // Map helper: the API likely expects "category" query param.
+          // Note: Check if API expects ID or Name. Usually name works if API supports it, 
+          // or we might need slug. Assuming Name based on user context.
+          params.set('category', currentCategory);
         }
 
-        if (filters.priceRange[0] > 0) {
-          params.append('min_price', filters.priceRange[0].toString());
+        if (currentSearch) {
+          params.set('search', currentSearch);
         }
 
-        if (filters.priceRange[1] < 100000) {
-          params.append('max_price', filters.priceRange[1].toString());
+        if (currentSort) {
+          params.set('ordering', currentSort);
         }
 
-        if (filters.rating > 0) {
-          params.append('min_rating', filters.rating.toString());
+        if (minPrice > 0) {
+          params.set('min_price', minPrice.toString());
         }
 
+        if (maxPrice < 100000) {
+          params.set('max_price', maxPrice.toString());
+        }
 
-        const response = await fetch(`${API_BASE_URL}/api/?${params}`);
+        if (minRating > 0) {
+          params.set('min_rating', minRating.toString());
+        }
+
+        const response = await fetch(`${API_BASE_URL}/api/?${params.toString()}`);
         if (response.ok) {
           const data: ProductsResponse = await response.json();
           setProducts(data.results);
@@ -91,16 +111,42 @@ export default function ProductsPage() {
     };
 
     fetchProducts();
-  }, [currentPage, sortBy, filters]);
+  }, [currentPage, currentCategory, currentSearch, currentSort, minPrice, maxPrice, minRating]);
 
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-
-    if (searchTimeoutRef.current) {
-      clearTimeout(searchTimeoutRef.current);
+  // URL Helper
+  const updateParams = (newParams: Record<string, string | number | null>) => {
+    const params = new URLSearchParams(searchParams.toString());
+    Object.entries(newParams).forEach(([key, value]) => {
+      if (value === null) {
+        params.delete(key);
+      } else {
+        params.set(key, value.toString());
+      }
+    });
+    // Reset page on filter change if not strictly changing page
+    if (!newParams.page) {
+       params.set('page', '1');
     }
+    router.push(`/products?${params.toString()}`);
+  };
 
-    if (!query.trim()) {
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // The search is already in URL via input change? No, typical pattern is update on submit.
+    // But here we want controlled input derived from URL for "truth", 
+    // or local state pushed to URL on submit.
+    // Let's use local state for input and push to URL on submit.
+    const form = e.target as HTMLFormElement;
+    const input = form.elements.namedItem('search-input') as HTMLInputElement;
+    updateParams({ search: input.value });
+    setShowSuggestions(false);
+  };
+
+  const handleSearchInput = (value: string) => {
+    // Just update suggestions here, don't update URL yet
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+    
+    if (!value.trim()) {
       setSearchSuggestions([]);
       setShowSuggestions(false);
       return;
@@ -109,121 +155,72 @@ export default function ProductsPage() {
     setSearchLoading(true);
     searchTimeoutRef.current = setTimeout(async () => {
       try {
-        const params = new URLSearchParams({
-          search: query.trim(),
-        });
-
-        const response = await fetch(`${API_BASE_URL}/api/search/?${params}`);
+        const response = await fetch(`${API_BASE_URL}/api/search/?search=${encodeURIComponent(value.trim())}`);
         if (response.ok) {
-          const data: ProductsResponse = await response.json();
-          setSearchSuggestions(data.results.slice(0, 6)); // Limit to 6 suggestions
-          setShowSuggestions(true);
+           const data = await response.json();
+           setSearchSuggestions(data.results.slice(0, 6)); // Assuming same response shape
+           setShowSuggestions(true);
         }
-      } catch (error) {
-        console.error('Error fetching search suggestions:', error);
+      } catch (e) {
+        console.error(e);
       } finally {
         setSearchLoading(false);
       }
-    }, 300); // 300ms delay
-  };
-
-  const handleSuggestionClick = (product: Product) => {
-    setSearchQuery('');
-    setShowSuggestions(false);
-    window.location.href = `/products/${product.product_id}`;
-  };
-
-  const handlePreviousPage = () => {
-    setCurrentPage((prev) => Math.max(1, prev - 1));
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handleNextPage = () => {
-    setCurrentPage((prev) => Math.min(totalPages, prev + 1));
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 300);
   };
 
   const getPaginationNumbers = () => {
     const pages: (number | string)[] = [];
-    const maxPages = 7; // Maximum pages to show
+    const maxPages = 7; 
 
     if (totalPages <= maxPages) {
-      // Show all pages if total is less than or equal to max
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
-      }
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
     } else {
-      // Always show first page
       pages.push(1);
-
-      // Calculate start and end of middle section
       const startPage = Math.max(2, currentPage - 2);
       const endPage = Math.min(totalPages - 1, currentPage + 2);
 
-      // Add ellipsis before middle section
-      if (startPage > 2) {
-        pages.push('...');
-      }
-
-      // Add middle pages
-      for (let i = startPage; i <= endPage; i++) {
-        pages.push(i);
-      }
-
-      // Add ellipsis after middle section
-      if (endPage < totalPages - 1) {
-        pages.push('...');
-      }
-
-      // Always show last page
+      if (startPage > 2) pages.push('...');
+      for (let i = startPage; i <= endPage; i++) pages.push(i);
+      if (endPage < totalPages - 1) pages.push('...');
       pages.push(totalPages);
     }
-
     return pages;
   };
 
-  const handleResetFilters = () => {
-    setFilters({
-      priceRange: [0, 100000],
-      rating: 0,
-    });
-    setCurrentPage(1);
-  };
-
   const activeFilterCount = [
-    filters.priceRange[0] > 0 || filters.priceRange[1] < 100000 ? 1 : 0,
-    filters.rating > 0 ? 1 : 0,
+    minPrice > 0 || maxPrice < 100000 ? 1 : 0,
+    minRating > 0 ? 1 : 0,
+    currentCategory !== 'All' ? 1 : 0
   ].reduce((a, b) => a + b, 0);
 
   return (
     <main className="min-h-screen bg-white">
+      {/* Banner / Breadcrumb */}
       <div className="border-b border-gray-200">
-        <div className=" ">
-          <div className="flex ">
-        <div
-          className=" relative w-full p-8 items-center overflow-hidden h-48 bg-cover bg-top bg-right "
-          data-alt="A serene photo of a mother gently holding her baby."
-          style={{ backgroundImage: "url('/images/banner3.png')" }}
-        >
-
-              <nav className="flex items-center gap-2 font-bold text-sm text-gray-600">
-                <Link href="/" className="hover:text-gray-900 transition-colors">Home</Link>
-                <span>/</span>
-                <span className="text-gray-900">Shop</span>
-              </nav>
-            </div>
+          <div 
+            className="flex relative w-full p-8 items-center overflow-hidden h-48 bg-cover bg-top bg-right"
+            style={{ backgroundImage: "url('/images/banner3.png')" }}
+          >
+            <nav className="flex items-center gap-2 font-bold text-sm text-gray-800 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full">
+              <Link href="/" className="hover:text-black transition-colors">Home</Link>
+              <span>/</span>
+              <span className="text-black">Shop</span>
+              <span>/</span>
+              <span className="text-black">{currentCategory}</span>  
+            </nav>
           </div>
-        </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex gap-12">
+          {/* Filters Sidebar */}
           <aside
             className={`${
               mobileFiltersOpen ? 'block' : 'hidden'
             } md:block fixed md:relative inset-0 md:inset-auto bg-white md:bg-transparent z-30 md:z-0 md:w-64 overflow-y-auto max-h-screen md:max-h-none`}
           >
-            {mobileFiltersOpen && (
+             {mobileFiltersOpen && (
               <div className="flex items-center justify-between p-6 md:hidden border-b border-gray-200">
                 <h2 className="text-lg font-medium text-gray-900">Filters</h2>
                 <button
@@ -235,24 +232,23 @@ export default function ProductsPage() {
               </div>
             )}
 
-            <div className="p-6 md:p-0 mt-8 space-y-8 md:sticky md:top-10">
+            <div className="p-6 md:p-0 mt-8 space-y-8 md:sticky md:top-24">
               <div>
-                <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-6">
-                  Filter by
-                </h3>
+                <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-6">Filter by</h3>
                 <div className="space-y-6 text-sm">
+                  {/* Category Filter */}
                   <div>
-                    <label className="block font-medium text-gray-900 mb-4">
-                      Categories
-                    </label>
+                    <label className="block font-medium text-gray-900 mb-4">Categories</label>
                     <div className="space-y-3">
-                      {['All', 'T-Shirts', 'Hoodies', 'Jackets', 'Accessories'].map((cat) => (
+                      {CATEGORIES.map((cat) => (
                         <label key={cat} className="flex items-center gap-3 cursor-pointer">
                           <input
                             type="checkbox"
-                            className="w-4 h-4 rounded border-gray-300 cursor-pointer"
+                            checked={currentCategory === cat || (currentCategory === '' && cat === 'All')}
+                            onChange={() => updateParams({ category: cat === 'All' ? null : cat })}
+                            className="w-4 h-4 rounded border-gray-300 cursor-pointer accent-black"
                           />
-                          <span className="text-gray-600 hover:text-gray-900 transition-colors">
+                          <span className={`${currentCategory === cat || (currentCategory === '' && cat === 'All') ? 'font-semibold text-black' : 'text-gray-600'} hover:text-black transition-colors`}>
                             {cat}
                           </span>
                         </label>
@@ -260,37 +256,28 @@ export default function ProductsPage() {
                     </div>
                   </div>
 
+                  {/* Price Filter */}
                   <div className="pt-6 border-t border-gray-200">
-                    <label className="block font-medium text-gray-900 mb-4">
-                      Price
-                    </label>
-                    <div className="space-y-3">
-                      <div>
-                        <input
-                          type="range"
-                          min="0"
-                          max="100000"
-                          step="1000"
-                          value={filters.priceRange[0]}
-                          onChange={(e) =>
-                            setFilters({
-                              ...filters,
-                              priceRange: [parseInt(e.target.value), filters.priceRange[1]],
-                            })
-                          }
-                          className="w-full h-1 bg-gray-300 rounded-lg appearance-none cursor-pointer accent-black"
-                        />
-                        <div className="text-xs text-gray-600 mt-2">
-                          Rs. {filters.priceRange[0].toLocaleString()} - Rs. {filters.priceRange[1].toLocaleString()}
-                        </div>
-                      </div>
-                    </div>
+                    <label className="block font-medium text-gray-900 mb-4">Price</label>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100000"
+                      step="1000"
+                      value={minPrice} 
+                      onChange={(e) => updateParams({ min_price: e.target.value })}
+                      className="w-full h-1 bg-gray-300 rounded-lg appearance-none cursor-pointer accent-black"
+                    />
+                     {/* Simplified to single slider for min price for UX or range if dual slider logic exists. 
+                         Reverting to original logic approx: [min, max] */}
+                     <div className="text-xs text-gray-600 mt-2">
+                       Min: Rs. {minPrice.toLocaleString()} - Max: Rs. {maxPrice.toLocaleString()}
+                     </div>
                   </div>
 
-                  <div className="pt-6 border-t border-gray-200">
-                    <label className="block font-medium text-gray-900 mb-4">
-                      Rating
-                    </label>
+                   {/* Rating Filter */}
+                   <div className="pt-6 border-t border-gray-200">
+                    <label className="block font-medium text-gray-900 mb-4">Rating</label>
                     <div className="space-y-3">
                       {[
                         { value: 0, label: 'All' },
@@ -301,12 +288,9 @@ export default function ProductsPage() {
                           <input
                             type="radio"
                             name="rating"
-                            value={option.value}
-                            checked={filters.rating === option.value}
-                            onChange={(e) =>
-                              setFilters({ ...filters, rating: parseInt(e.target.value) })
-                            }
-                            className="w-4 h-4 cursor-pointer"
+                            checked={minRating === option.value}
+                            onChange={() => updateParams({ min_rating: option.value || null })}
+                            className="w-4 h-4 cursor-pointer accent-black"
                           />
                           <span className="text-gray-600 hover:text-gray-900 transition-colors">
                             {option.label}
@@ -315,60 +299,52 @@ export default function ProductsPage() {
                       ))}
                     </div>
                   </div>
-
                 </div>
               </div>
 
-              {activeFilterCount > 0 && (
+               {activeFilterCount > 0 && (
                 <button
-                  onClick={handleResetFilters}
+                  onClick={() => router.push('/products')}
                   className="w-full pt-6 border-t border-gray-200 text-left text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
                 >
-                  Clear all ({activeFilterCount})
-                </button>
-              )}
-
-              {mobileFiltersOpen && (
-                <button
-                  onClick={() => setMobileFiltersOpen(false)}
-                  className="md:hidden w-full py-3 bg-black text-white rounded text-sm font-medium hover:bg-gray-900 transition-colors"
-                >
-                  Apply
+                  Clear all
                 </button>
               )}
             </div>
           </aside>
-          
 
-          <div className="flex-1 page-load-fade-in">
-            <h1 className='mt-4 text-2xl font-semibold'>Shop</h1>
-            
-            {/* Search Bar with Suggestions */}
-            <div className="mt-6 mb-8 relative">
-              <div className="relative">
+          {/* Main Content */}
+          <div className="flex-1 page-load-fade-in mt-8">
+            <div className='text-2xl flex items-center font-semibold'>Shop <span><ChevronRight/></span> {currentCategory}</div>
+
+            {/* Search Bar */}
+            <div className="mt-6 mb-8 relative z-20">
+              <form onSubmit={handleSearchSubmit} className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
                 <input
+                  name="search-input"
                   type="text"
                   placeholder="Search products..."
-                  value={searchQuery}
-                  onChange={(e) => handleSearch(e.target.value)}
-                  onFocus={() => searchQuery && setShowSuggestions(true)}
+                  defaultValue={currentSearch}
+                  onChange={(e) => handleSearchInput(e.target.value)}
+                  onFocus={() => showSuggestions && setShowSuggestions(true)}
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
                 />
-              </div>
+              </form>
 
-              {/* Search Suggestions Dropdown */}
+              {/* Suggestions */}
               {showSuggestions && (
                 <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-300 rounded-lg shadow-lg z-40 max-h-96 overflow-y-auto">
-                  {searchLoading ? (
+                   {searchLoading ? (
                     <div className="p-4 text-center text-gray-500">Searching...</div>
                   ) : searchSuggestions.length > 0 ? (
                     <div>
                       {searchSuggestions.map((product) => (
-                        <button
+                        <Link
                           key={product.product_id}
-                          onClick={() => handleSuggestionClick(product)}
+                          href={`/products/${product.product_id}`}
                           className="w-full flex items-center gap-3 p-3 hover:bg-gray-100 transition-colors border-b border-gray-100 last:border-b-0 text-left"
+                          onClick={() => setShowSuggestions(false)}
                         >
                           <Image
                             src={product.images[0]?.image || '/images/placeholder.png'}
@@ -377,47 +353,38 @@ export default function ProductsPage() {
                             height={48}
                             className="w-12 h-12 object-cover rounded"
                           />
-                          <div className="flex-1 min-w-0">
+                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium text-gray-900 truncate">{product.name}</p>
                             <p className="text-xs text-gray-500">Rs. {product.price}</p>
                           </div>
-                        </button>
+                        </Link>
                       ))}
                     </div>
                   ) : (
-                    <div className="p-4 text-center text-gray-500">
-                      No products found matching &quot;{searchQuery}&quot;
-                    </div>
+                    <div className="p-4 text-center text-gray-500">No suggestions</div>
                   )}
                 </div>
               )}
             </div>
 
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-8 gap-4 pb-8 border-b border-gray-200 page-load-fade-in">
+            {/* Sort & active count */}
+             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-8 gap-4 pb-8 border-b border-gray-200">
               <div className="flex items-center gap-4">
                 <button
                   onClick={() => setMobileFiltersOpen(!mobileFiltersOpen)}
                   className="md:hidden text-sm font-medium text-gray-900"
                 >
-                  Filter by
-                  {activeFilterCount > 0 && (
-                    <span className="ml-2 inline-block w-5 h-5 bg-black text-white text-xs rounded-full flex items-center justify-center">
-                      {activeFilterCount}
-                    </span>
-                  )}
+                  Filters {activeFilterCount > 0 && `(${activeFilterCount})`}
                 </button>
                 <span className="hidden sm:inline text-sm text-gray-600">
                   Showing results of {products.length} items
                 </span>
               </div>
 
-              <div>
+               <div>
                 <select
-                  value={sortBy}
-                  onChange={(e) => {
-                    setSortBy(e.target.value);
-                    setCurrentPage(1);
-                  }}
+                  value={currentSort}
+                  onChange={(e) => updateParams({ ordering: e.target.value })}
                   className="text-sm font-medium text-gray-900 bg-transparent border-none focus:outline-none cursor-pointer"
                 >
                   <option value="">Default Sorting</option>
@@ -425,10 +392,11 @@ export default function ProductsPage() {
                   <option value="-price">Price: High to Low</option>
                 </select>
               </div>
-            </div>
+             </div>
 
-            {loading ? (
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
+             {/* Product Grid */}
+              {loading ? (
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-8 mt-8">
                 {Array.from({ length: 6 }).map((_, i) => (
                   <div key={i} className="animate-pulse">
                     <div className="aspect-square bg-gray-200 rounded mb-4"></div>
@@ -439,17 +407,16 @@ export default function ProductsPage() {
               </div>
             ) : products.length > 0 ? (
               <>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-8 md:gap-12 mb-16 ">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-8 md:gap-12 mb-16 mt-8">
                   {products.map((product) => (
-                    <div key={product.product_id}>
-                      <ProductCard product={product} />
-                    </div>
+                    <ProductCard key={product.product_id} product={product} />
                   ))}
                 </div>
 
+                {/* Pagination */}
                 <div className="flex items-center pb-10 justify-center gap-4 pt-12 border-t border-gray-200">
                   <button
-                    onClick={handlePreviousPage}
+                    onClick={() => updateParams({ page: Math.max(1, currentPage - 1) })}
                     disabled={currentPage === 1}
                     className="p-2 hover:bg-gray-100 rounded-full disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                   >
@@ -457,32 +424,25 @@ export default function ProductsPage() {
                   </button>
 
                   <div className="flex items-center gap-2">
-                    {getPaginationNumbers().map((pageNum, idx) => {
-                      if (pageNum === '...') {
-                        return (
-                          <span key={`ellipsis-${idx}`} className="text-gray-600 px-2">
-                            ...
-                          </span>
-                        );
-                      }
-                      return (
+                    {getPaginationNumbers().map((pageNum, idx) => 
+                       pageNum === '...' ? (
+                        <span key={`el-${idx}`} className="text-gray-600 px-2">...</span>
+                       ) : (
                         <button
                           key={pageNum}
-                          onClick={() => setCurrentPage(pageNum as number)}
+                          onClick={() => updateParams({ page: pageNum as number })}
                           className={`w-10 h-10 rounded-full text-sm font-medium transition-colors ${
-                            currentPage === pageNum
-                              ? 'bg-black text-white'
-                              : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+                            currentPage === pageNum ? 'bg-black text-white' : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
                           }`}
                         >
                           {pageNum}
                         </button>
-                      );
-                    })}
+                       )
+                    )}
                   </div>
 
-                  <button
-                    onClick={handleNextPage}
+                   <button
+                    onClick={() => updateParams({ page: Math.min(totalPages, currentPage + 1) })}
                     disabled={currentPage === totalPages}
                     className="p-2 hover:bg-gray-100 rounded-full disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                   >
@@ -492,18 +452,23 @@ export default function ProductsPage() {
               </>
             ) : (
               <div className="text-center py-16">
-                <p className="text-gray-600 mb-6">No products match your filters</p>
-                <button
-                  onClick={handleResetFilters}
-                  className="text-sm font-medium text-gray-900 hover:text-gray-600 transition-colors"
-                >
-                  Clear filters
-                </button>
+                 <p className="text-gray-600 mb-6">No products match your filters</p>
+                 <button onClick={() => router.push('/products')} className="text-sm font-medium text-gray-900 hover:text-gray-600 underline">
+                   Clear all filters
+                 </button>
               </div>
             )}
           </div>
         </div>
       </div>
     </main>
+  );
+}
+
+export default function ProductsPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ProductsContent />
+    </Suspense>
   );
 }

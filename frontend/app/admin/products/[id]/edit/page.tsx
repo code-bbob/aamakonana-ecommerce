@@ -774,14 +774,14 @@ export default function EditProduct() {
           </DialogContent>
         </Dialog>
 
-        <div className="container mx-auto px-4 py-8">
+        <div className="w-full px-4 py-8 flex flex-col">
           <Link href="/admin/products" className="my-6 inline-block">
             <button className="flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-900 rounded-lg hover:bg-gray-300 transition-colors font-medium">
               ← Back to Products
             </button>
           </Link>
 
-          <div className="max-w-2xl mx-auto">
+          <div className="max-w-2xl mx-auto w-full pb-8">
             {error && (
               <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg mb-6">
                 {error}

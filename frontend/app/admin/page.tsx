@@ -153,7 +153,7 @@ function AdminDashboardContent() {
           </div>
         </div>
 
-        <div className="flex-1 overflow-auto bg-gray-50 p-6">
+        <div className="flex-1 bg-gray-50 p-6">
           {loading ? (
             <div className="flex items-center justify-center h-96">
               <div className="text-center">

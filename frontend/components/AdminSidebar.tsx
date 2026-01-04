@@ -43,7 +43,7 @@ export function AdminSidebar({ activeMenu }: SidebarProps) {
     <div
       className={`${
         sidebarOpen ? 'w-64' : 'w-20'
-      } bg-white text-gray-900 transition-all duration-300 flex flex-col border-r border-gray-200`}
+      } h-screen bg-white text-gray-900 transition-all duration-300 flex flex-col border-r border-gray-200`}
     >
       <div className="p-6 border-b border-gray-200">
         <Link href="/admin" className="flex items-center gap-3">

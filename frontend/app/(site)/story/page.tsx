@@ -34,7 +34,7 @@ function smoothstep(edge0: number, edge1: number, x: number) {
 
 function Page({ side, pageNumber }: { side: PageSide; pageNumber?: number }) {
   return (
-    <div className="h-full w-full p-10 sm:p-12 flex flex-col bg-white">
+    <div className="h-full w-full p-10 sm:p-12 flex flex-col bg-purple-100">
       <div className="flex-1">
         {side.kicker && (
           <div className="text-xs font-semibold tracking-[0.25em] text-amber-700 mb-3 uppercase">
@@ -75,10 +75,10 @@ function Page({ side, pageNumber }: { side: PageSide; pageNumber?: number }) {
             )}
 
             {side.isClosing && side.ctaHref && side.ctaLabel && (
-              <div className="mt-8">
+              <div className="mt-24">
                 <Link
                   href={side.ctaHref}
-                  className="inline-flex items-center justify-center rounded-lg px-6 py-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white font-semibold hover:shadow-lg transition-all active:scale-95"
+                  className="flex justify-center rounded-lg px-6 py-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white font-semibold hover:shadow-lg transition-all active:scale-95"
                 >
                   {side.ctaLabel}
                 </Link>
@@ -99,35 +99,94 @@ function Page({ side, pageNumber }: { side: PageSide; pageNumber?: number }) {
 
 export default function StoryPage() {
   const containerRef = useRef<HTMLDivElement | null>(null);
+
   const spreads: Spread[] = useMemo(
-    () => [
-      {
-        left: { isCover: true, title: 'Aamako Nana', subtitle: 'आमाको न्यानोपनको अनुभूति', body: 'Our story of quality, love, and purpose.' },
-        right: { kicker: 'CHAPTER 1', title: 'The Beginning', subtitle: 'How it all started', body: "We weren't born from a business plan. We were born from frustration—from watching baby clothes fall apart after one wash." },
+  () => [
+    {
+      left: { 
+        isCover: true, 
+        title: 'Aama Ko Nana', 
+        subtitle: 'आमाको न्यानोपनको अनुभूति', 
+        body: 'Aamako Nana was born from a simple truth: nothing feels safer than a mother’s warmth. Inspired by that feeling, we create babywear that wraps newborns in comfort, care, and protection. Every piece we make carries the softness of love, the patience of handwork, and the promise of quality that families can trust from the very first day.' 
       },
-      {
-        left: { kicker: 'CHAPTER 1 (CONT.)', title: 'The First Investment', body: "That question led us to invest Rs. 50,000 in premium malmal fabric and stitch 50 sets from home. We sold out in 7 days." },
-        right: { kicker: 'CHAPTER 2', title: 'Launch Day', subtitle: 'Everything changed', body: "Orders kept coming—homes wanted our products, and hospitals did too. When ‘Aama’ was already registered, we became ‘Aamako Nana’." },
+      right: { 
+        kicker: 'CHAPTER 1', 
+        title: 'The Beginning', 
+        subtitle: 'Where the question began', 
+        body: "Our story didn’t start in a boardroom—it started at home. Watching baby clothes lose shape, fade, and tear after a single wash left us asking a hard question: why should parents accept less for their children? That moment of frustration slowly transformed into a purpose—to design clothing that respects a baby’s skin, lasts through countless washes, and gives parents peace of mind." 
       },
-      {
-        left: { kicker: 'CHAPTER 2 (CONT.)', title: 'Social Media Magic', body: 'Social media became our megaphone. TikTok and Instagram helped families find us. By 2079–80 BS, we opened a factory in Basundhara.' },
-        right: { kicker: 'CHAPTER 3', title: 'What We Make', subtitle: 'Every product tells a story', body: 'Newborn essentials, Pasni outfits, and festive wear. Bedding sets that turn a crib into a sanctuary.' },
+    },
+    {
+      left: { 
+        kicker: 'CHAPTER 1 (CONT.)', 
+        title: 'The First Investment', 
+        body: "With belief stronger than resources, we invested Rs. 50,000 in premium malmal fabric and stitched 50 sets by hand from home. Every piece was sewn slowly and carefully, tested for softness, strength, and comfort. When all 50 sets sold out within just 7 days, it wasn’t the profit that excited us—it was the trust families placed in our work." 
       },
-      {
-        left: { kicker: 'CHAPTER 3 (CONT.)', title: 'Premium Materials', body: 'We work with premium fabrics—cotton, malmal, muslin, flannel. Every piece is stitched with intention and tested with care.' },
-        right: { kicker: 'CHAPTER 4', title: 'Our Values', subtitle: 'Quality without compromise', body: 'Clothing sets range from Rs. 1,100 to Rs. 2,700. Every stitch matters. Every color is tested.' },
+      right: { 
+        kicker: 'CHAPTER 2', 
+        title: 'Launch Day', 
+        subtitle: 'A name rooted in love', 
+        body: "Orders soon arrived from households and hospitals alike. Word spread about quality that felt different—gentler, stronger, and more thoughtful. When the name ‘Aama’ was already taken, we chose ‘Aamako Nana’—a reminder of a grandmother’s warmth, wisdom, and care. That name became our identity and our responsibility." 
       },
-      {
-        left: { kicker: 'CHAPTER 4 (CONT.)', title: 'No Shortcuts', body: "We don’t believe in shortcuts. We don’t compromise on fabric quality. Every baby deserves comfort." },
-        right: { kicker: 'CHAPTER 5', title: 'Our Impact', subtitle: 'Building more than a business', body: "We employ 18 people. We train women in sewing and daura-suruwal making, creating skills and income." },
+    },
+    {
+      left: { 
+        kicker: 'CHAPTER 2 (CONT.)', 
+        title: 'Social Media Magic', 
+        body: 'Social media became our storyteller. Through short videos, honest conversations, and behind-the-scenes moments, families across Nepal discovered who we were and why we cared so deeply. TikTok and Instagram helped us grow organically, and by 2079–80 BS, we opened our own factory in Basundhara—scaling production while protecting the quality we started with.' 
       },
-      {
-        left: { kicker: 'CHAPTER 6', title: 'Our Vision', subtitle: 'The future we’re building', body: 'We see a Nepal where quality baby wear reaches every household. We see women empowered through entrepreneurship.' },
-        right: { isClosing: true, title: 'Join Our Story', body: 'Every purchase is a vote for quality. Choose care—help us grow this warmth across Nepal.', ctaLabel: 'Shop Our Collection', ctaHref: '/products' },
+      right: { 
+        kicker: 'CHAPTER 3', 
+        title: 'What We Make', 
+        subtitle: 'Thoughtfully designed essentials', 
+        body: 'We design newborn essentials, Pasni outfits, festive wear, and bedding sets that feel as comforting as home. Each product is made to support a baby’s daily routines—sleeping, playing, growing—while also carrying cultural meaning and modern design. Nothing is mass-produced without intention.' 
       },
-    ],
-    []
-  );
+    },
+    {
+      left: { 
+        kicker: 'CHAPTER 3 (CONT.)', 
+        title: 'Premium Materials', 
+        body: 'Fabric is where quality begins. We carefully select the best quality cotton, malmal, muslin, and flannel for their breathability, softness, and durability. Each fabric we select is tested for comfort against sensitive skin, and each stitch is reinforced for long-term use. We design for real life—washing, drying, wearing, and repeating.' 
+      },
+      right: { 
+        kicker: 'CHAPTER 4', 
+        title: 'Our Values', 
+        subtitle: 'Quality is non-negotiable', 
+        body: 'Our pricing—ranging from Rs. 1,100 to Rs. 2,700—reflects honest craftsmanship and ethical production. We test colors for safety, check seams for strength, and review every detail before a product leaves our hands. Quality isn’t a feature for us; it’s a responsibility we take personally.' 
+      },
+    },
+    {
+      left: { 
+        kicker: 'CHAPTER 4 (CONT.)', 
+        title: 'No Shortcuts', 
+        body: "We refuse shortcuts because babies don’t get second chances at comfort. From sourcing materials to final packaging, every step is intentional. We believe parents should never have to question what touches their baby’s skin—and that belief guides every decision we make." 
+      },
+      right: { 
+        kicker: 'CHAPTER 5', 
+        title: 'Our Impact', 
+        subtitle: 'People at the heart of everything', 
+        body: "Behind every product is a human story. We employ 18 skilled individuals and actively train women in sewing and traditional daura-suruwal making. By creating stable income and transferable skills, we’re helping families grow stronger—proving that business can be both compassionate and sustainable." 
+      },
+    },
+    {
+      left: { 
+        kicker: 'CHAPTER 6', 
+        title: 'Our Vision', 
+        subtitle: 'Growing warmth across Nepal', 
+        body: 'We imagine a future where every newborn in Nepal has access to safe, high-quality clothing made with care. We see Aamako Nana as a platform for empowering women, preserving craftsmanship, and setting a new standard for babywear—one rooted in trust, dignity, and love.' 
+      },
+      right: { 
+        isClosing: true, 
+        title: 'Join Our Story', 
+        body: 'Every time you choose Aamako Nana, you support thoughtful design, ethical production, and a community built on care. Your trust allows us to grow, innovate, and share this warmth with more families. Together, we are stitching comfort, culture, and compassion into every beginning.', 
+        ctaLabel: 'Shop Our Collection', 
+        ctaHref: '/products' 
+      },
+    },
+  ],
+  []
+);
+
 
   const maxFlip = spreads.length - 1;
   const [targetProgress, setTargetProgress] = useState(0);
@@ -147,37 +206,54 @@ export default function StoryPage() {
   }, [targetProgress]);
 
   useEffect(() => {
+    let metrics = {
+      containerTop: 0,
+      containerHeight: 0,
+      windowHeight: 0,
+      totalScrollableDistance: 0
+    };
+
+    const updateMetrics = () => {
+      if (!containerRef.current) return;
+      metrics.containerTop = containerRef.current.offsetTop;
+      metrics.containerHeight = containerRef.current.offsetHeight;
+      metrics.windowHeight = window.innerHeight;
+      metrics.totalScrollableDistance = metrics.containerHeight - metrics.windowHeight;
+    };
+
     const handleScroll = () => {
       if (!containerRef.current) return;
-      const rect = containerRef.current.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
       
-      // The sticky element is h-screen (100vh).
-      // The total scrollable distance within the container is containerHeight - windowHeight.
-      const elementHeight = windowHeight;
-      const totalScrollableDistance = rect.height - elementHeight;
-      
-      // rect.top is the distance from the top of the viewport to the top of the container.
-      // When rect.top is 0, the container is at the top of the viewport.
-      // As we scroll down, rect.top becomes negative.
-      const scrolled = -rect.top;
+      // If metrics are not initialized, update them
+      if (metrics.containerHeight === 0) updateMetrics();
+
+      const scrollTop = window.scrollY;
+      const scrolledInContainer = scrollTop - metrics.containerTop;
       
       let progress = 0;
-      if (totalScrollableDistance > 0) {
-        progress = scrolled / totalScrollableDistance;
+      if (metrics.totalScrollableDistance > 0) {
+        progress = scrolledInContainer / metrics.totalScrollableDistance;
       }
       
       const clamped = clamp(progress, 0, 1);
       setTargetProgress(clamped * maxFlip);
     };
 
-    window.addEventListener('scroll', handleScroll);
-    window.addEventListener('resize', handleScroll);
-    handleScroll(); // Initial check
+    const handleResize = () => {
+      updateMetrics();
+      handleScroll();
+    };
+
+    // Initial setup
+    updateMetrics();
+    handleScroll();
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', handleResize);
     
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', handleScroll);
+      window.removeEventListener('resize', handleResize);
     };
   }, [maxFlip]);
 
@@ -209,11 +285,16 @@ export default function StoryPage() {
   const faceSwap = smoothstep(0.48, 0.52, localT); // Sharper swap for page numbers
 
   return (
-    <div 
-      ref={containerRef} 
-      className="relative bg-amber-50"
-      style={{ height: `${spreads.length * 100}vh` }}
-    >
+      <div
+  ref={containerRef}
+  className="relative bg-gray-100 bg-cover bg-center bg-no-repeat"
+  style={{
+    height: `${spreads.length * 100}vh`,
+    backgroundImage: "url('/images/pbg.png')",
+
+  }}
+>
+
       <div className="sticky top-0 h-screen w-full flex items-center justify-center p-4">
         <div className="w-full max-w-6xl">
         
@@ -230,7 +311,7 @@ export default function StoryPage() {
           </div>
         </div>
 
-        <div className="relative shadow-2xl rounded-xl bg-white" style={{ perspective: '2000px', overflow: 'visible' }}>
+        <div className="relative shadow-2xl rounded-xl " style={{ perspective: '2000px', overflow: 'visible' }}>
           
           {/* Static Background Layer */}
           <div className="grid grid-cols-2" style={{ minHeight: '550px' }}>
