@@ -2,7 +2,6 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { Plus } from 'lucide-react';
 import { useState } from 'react';
 
 interface PremiumProductCardProps {
@@ -30,7 +29,7 @@ export function PremiumProductCard({ product }: PremiumProductCardProps) {
   return (
     <Link href={`/products/${product.product_id}`} className="block group">
       <div 
-        className="relative aspect-square bg-[#f0f0f0] overflow-hidden mb-4 transition-transform duration-700 ease-out"
+        className="relative aspect-square bg-gray-100 overflow-hidden mb-3 transition-transform duration-500 ease-out"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -39,14 +38,14 @@ export function PremiumProductCard({ product }: PremiumProductCardProps) {
           src={mainImage}
           alt={product.name}
           fill
-          className={`object-cover transition-opacity duration-700 ease-in-out ${isHovered ? 'opacity-0' : 'opacity-100'}`}
+          className={`object-contain transition-opacity duration-700 ease-in-out ${isHovered ? 'opacity-0' : 'opacity-100'}`}
           sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
         />
         <Image
           src={secondImage}
           alt={product.name}
           fill
-          className={`object-cover transition-all duration-700 ease-out transform ${
+          className={`object-contain transition-all duration-700 ease-out transform ${
             isHovered ? 'opacity-100 scale-105' : 'opacity-0 scale-100'
           }`}
           sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
