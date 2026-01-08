@@ -4,7 +4,7 @@ import { Facebook, Instagram, Twitter } from "lucide-react";
 
 export function SiteFooter() {
   return (
-    <footer className="bg-black text-white pt-16 pb-8 border-t border-neutral-800">
+    <footer className="bg-black pl-8 text-white pt-16 pb-8 border-t border-neutral-800">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
           {/* Brand Column */}

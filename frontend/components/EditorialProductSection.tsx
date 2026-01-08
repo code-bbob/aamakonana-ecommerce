@@ -2,16 +2,25 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import useEmblaCarousel from 'embla-carousel-react';
 import { useCallback, useEffect, useState } from 'react';
 import { PremiumProductCard } from './PremiumProductCard';
+
+interface Product {
+  product_id: string;
+  name: string;
+  price: number;
+  old_price?: number;
+  category_name: string;
+  images: Array<{ image: string }>;
+}
 
 interface EditorialProductSectionProps {
   title: string;
   subtitle: string;
   description?: string;
-  products: any[];
+  products: Product[];
   categorySlug: string;
   featuredImage: string;
   imagePosition?: 'left' | 'right';
@@ -58,16 +67,16 @@ export default function EditorialProductSection({
   const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
 
   const bgColor = theme === 'warm' ? 'bg-teal-50' : 'bg-red-50';
-  const textColor = 'text-neutral-900';
+
 
   return (
-    <section className={`py-26 ${bgColor} overflow-hidden`}>
+    <section className={`py-26 pl-8 ${bgColor} overflow-hidden`}>
       <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
         <div className={`flex flex-col lg:flex-row gap-12 lg:gap-20 ${imagePosition === 'right' ? 'lg:flex-row-reverse' : ''}`}>
           
           {/* Editorial Image Side */}
           <div className="lg:w-[40%] flex flex-col justify-between">
-            <div className="mb-8">
+            <div className="">
               <span className="block text-xs font-bold uppercase tracking-[0.2em] text-neutral-500 mb-4">
                 Collection
               </span>
@@ -143,7 +152,7 @@ export default function EditorialProductSection({
                       key={product.product_id}
                       className="flex-[0_0_75%] sm:flex-[0_0_45%] "
                     >
-                      <PremiumProductCard product={product} variant="minimal" />
+                      <PremiumProductCard product={product} />
                     </div>
                   ))}
                </div>

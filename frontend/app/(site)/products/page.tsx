@@ -7,7 +7,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { ProductCard } from '@/components/ProductCard';
 import { ChevronLeft, ChevronRight, X, Search } from 'lucide-react';
 
-const API_BASE_URL = 'http://localhost:8000/shop';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/shop';
 
 interface Product {
   product_id: string;
@@ -56,7 +56,7 @@ function ProductsContent() {
 
   // Derived state from URL
   const currentPage = Number(searchParams.get('page')) || 1;
-  const currentCategory = searchParams.get('category') || 'All';
+  const currentCategory = searchParams.get('category') || '';
   const currentSearch = searchParams.get('search') || '';
   const currentSort = searchParams.get('ordering') || '';
   const minPrice = Number(searchParams.get('min_price')) || 0;
@@ -70,7 +70,7 @@ function ProductsContent() {
         const params = new URLSearchParams();
         params.set('page', currentPage.toString());
         
-        if (currentCategory && currentCategory !== 'All') {
+        if (currentCategory && currentCategory !== '') {
           // Map helper: the API likely expects "category" query param.
           // Note: Check if API expects ID or Name. Usually name works if API supports it, 
           // or we might need slug. Assuming Name based on user context.
@@ -96,13 +96,24 @@ function ProductsContent() {
         if (minRating > 0) {
           params.set('min_rating', minRating.toString());
         }
-
+        
+        if (params.get("search")){
+          const response = await fetch(`${API_BASE_URL}/api/search/?${params.toString()}`);
+          if (response.ok) {
+          const data: ProductsResponse = await response.json();
+          setProducts(data.results);
+          setTotalPages(data.total_pages);
+        }
+        }
+        else{
         const response = await fetch(`${API_BASE_URL}/api/?${params.toString()}`);
         if (response.ok) {
           const data: ProductsResponse = await response.json();
           setProducts(data.results);
           setTotalPages(data.total_pages);
         }
+        }
+        
       } catch (error) {
         console.error('Error fetching products:', error);
       } finally {
@@ -199,10 +210,10 @@ function ProductsContent() {
       {/* Banner / Breadcrumb */}
       <div className="border-b border-gray-200">
           <div 
-            className="flex relative w-full p-8 items-center overflow-hidden h-48 bg-cover bg-top bg-right"
+            className="flex relative top-0 w-full p-8 items-center overflow-hidden h-48 bg-cover "
             style={{ backgroundImage: "url('/images/banner3.png')" }}
           >
-            <nav className="flex items-center gap-2 font-bold text-sm text-gray-800 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full">
+            <nav className="flex absolute top-8 left-2 items-center gap-2 font-bold text-sm text-gray-800 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full">
               <Link href="/" className="hover:text-black transition-colors">Home</Link>
               <span>/</span>
               <span className="text-black">Shop</span>

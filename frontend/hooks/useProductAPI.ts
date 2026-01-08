@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 
-const API_BASE_URL = 'http://localhost:8000/shop';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/shop';
 
 export const useProductAPI = () => {
   const [loading, setLoading] = useState(false);

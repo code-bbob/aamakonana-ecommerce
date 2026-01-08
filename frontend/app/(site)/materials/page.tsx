@@ -75,7 +75,7 @@ export default function MaterialsPage() {
       {/* Materials Grid */}
       <section className="max-w-7xl mx-auto px-6 lg:px-8 pb-32">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20">
-          {MATERIALS.map((material, index) => (
+          {MATERIALS.map((material) => (
             <div 
               key={material.name} 
               className={`group relative rounded-3xl overflow-hidden ${material.theme} shadow-sm hover:shadow-xl transition-all duration-500`}

@@ -6,10 +6,19 @@ import { ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { PremiumProductCard } from './PremiumProductCard';
 
+interface Product {
+  product_id: string;
+  name: string;
+  price: number;
+  old_price?: number;
+  category_name: string;
+  images: Array<{ image: string }>;
+}
+
 interface ProductCarouselProps {
   title: string;
   subtitle?: string;
-  products: any[];
+  products: Product[];
   categorySlug: string; // e.g., "Mothers" or "Newborns"
   darkBackground?: boolean;
 }

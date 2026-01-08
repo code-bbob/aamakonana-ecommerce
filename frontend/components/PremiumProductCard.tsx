@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { Heart, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { useState } from 'react';
 
 interface PremiumProductCardProps {
@@ -17,9 +17,8 @@ interface PremiumProductCardProps {
   variant?: 'default' | 'minimal';
 }
 
-export function PremiumProductCard({ product, variant = 'default' }: PremiumProductCardProps) {
+export function PremiumProductCard({ product }: PremiumProductCardProps) {
   const [isHovered, setIsHovered] = useState(false);
-  const [isWishlisted, setIsWishlisted] = useState(false);
 
   const discount = product.old_price
     ? Math.round(((product.old_price - product.price) / product.old_price) * 100)

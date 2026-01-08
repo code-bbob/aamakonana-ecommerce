@@ -1,8 +1,6 @@
 "use client";
 import { Manrope } from "next/font/google";
 import { useEffect, useState } from "react";
-import Link from "next/link";
-import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import HeroCarousel from "@/components/HeroCarousel";
 import { initRevealObserver } from "@/lib/animations";
 import { useProductAPI } from "@/hooks/useProductAPI";
@@ -10,10 +8,19 @@ import EditorialProductSection from "@/components/EditorialProductSection";
 
 const manrope = Manrope({ subsets: ["latin"] });
 
+interface Product {
+  product_id: string;
+  name: string;
+  price: number;
+  old_price?: number;
+  category_name: string;
+  images: Array<{ image: string }>;
+}
+
 export default function AmakonanaLanding() {
   const { getProducts } = useProductAPI();
-  const [motherProducts, setMotherProducts] = useState<any[]>([]);
-  const [babyProducts, setBabyProducts] = useState<any[]>([]);
+  const [motherProducts, setMotherProducts] = useState<Product[]>([]);
+  const [babyProducts, setBabyProducts] = useState<Product[]>([]);
 
   useEffect(() => {
     // Initialize reveal observer for scroll animations
@@ -94,7 +101,7 @@ export default function AmakonanaLanding() {
             />
 
       {/* Ethos Section */}
-      <section className="bg-yellow-50 py-12" data-reveal="true">
+      <section className="bg-stone-100 pl-8 py-26" data-reveal="true">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 items-center gap-16 md:grid-cols-2">
             <div
@@ -120,7 +127,7 @@ export default function AmakonanaLanding() {
                 title="For Mothers" 
                 subtitle="Thoughtfully designed essentials to support you through every stage of motherhood."
                 description="Our maternity collection combines traditional Nepali craftsmanship with modern comfort. Featured here is our signature cotton loungewear, perfect for nursing and recovery."
-                products={babyProducts}
+                products={motherProducts}
                 categorySlug="Mothers"
                 featuredImage="/images/mom5.png"
                 imagePosition="left"

@@ -70,7 +70,7 @@ interface Product {
   colors: Color[];
 }
 
-const API_BASE_URL = 'http://localhost:8000/shop';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/shop';
 
 export default function ProductPage({ params }: { params: Promise<{ id: string }> }) {
   const [product, setProduct] = useState<Product | null>(null);
@@ -240,7 +240,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
 
   return (
     <main className="min-h-screen bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           <div className="space-y-4">
             <div className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden group cursor-pointer" onClick={(e) => {
@@ -251,7 +251,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
               setIsModalOpen(true);
             }}>
               {mainImage && (
-                <Carousel className='w-full' setApi={setCarouselApi}>
+                <Carousel className='' setApi={setCarouselApi}>
                   <CarouselContent>
                     {product.images.map((img, idx) => (
                       <CarouselItem key={idx}>
@@ -302,8 +302,8 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
 
           <div className="flex flex-col justify-between">
             <div>
-              <p className="text-sm text-gray-500 uppercase tracking-wide">{product.category_name}</p>
-              <h1 className="text-4xl font-bold text-gray-900 mt-2 mb-4">{product.name}</h1>
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{product.category_name}</p>
+              <h1 className="text-3xl font-bold text-gray-900 mt-2 mb-4">{product.name}</h1>
 
               <div className="flex items-center gap-4 mb-6">
                 <div className="flex gap-1">
@@ -316,7 +316,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
 
               <div className="flex items-baseline gap-3 mb-8">
                 <div>
-                  <span className="text-4xl font-bold text-gray-900">Rs. {getFinalPrice()}</span>
+                  <span className="text-3xl font-bold text-gray-900">Rs. {getFinalPrice()}</span>
                   {/* {getSizeAdjustment() !== 0 && (
                     <span className="text-sm text-gray-600 ml-2">
                       {getSizeAdjustment() > 0 ? '+' : ''}Rs. {getSizeAdjustment()}
@@ -344,7 +344,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                         <button
                           key={color.id}
                           onClick={() => handleColorSelect(color.name)}
-                          className={`px-4 py-2 rounded-lg border-2 transition-all ${
+                          className={`px-4 py-2 text-sm rounded-lg border-2 transition-all ${
                             selectedColor === color.name
                               ? 'border-black bg-black text-white'
                               : 'border-gray-300 text-gray-900 hover:border-gray-400'
@@ -381,13 +381,13 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                       <span className="text-xs text-red-500 font-medium">Please select a size</span>
                     )}
                   </div>
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-4 gap-2">
                     {product.sizes && product.sizes.length > 0 ? (
                       product.sizes.map((size) => (
                         <button
                           key={size.id}
                           onClick={() => setSelectedSize(size.name)}
-                          className={`w-full py-3 rounded-lg border-2 font-medium transition-all ${
+                          className={`w-auto py-2 rounded-lg border-2 font-medium transition-all ${
                             selectedSize === size.name
                               ? 'border-black bg-black text-white'
                               : size.color_stocks?.some(cs => cs.stock > 0) === false
@@ -453,7 +453,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
               </div>
             </div>
 
-            <div className="space-y-3 pt-8 border-t-2 border-gray-200">
+            <div className="space-y-3 mt-4 pt-8 border-t-2 border-gray-200">
               <button
                 onClick={handleAddToCart}
                 className="w-full py-4 rounded-lg font-semibold text-lg bg-black text-white hover:bg-gray-900 transition-all"
@@ -555,7 +555,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                   </CarouselItem>
                 ))}
               </CarouselContent>
-              <CarouselPrevious className="left-2" />
+              <CarouselPrevious className="left-2 bg-white" />
               <CarouselNext className="right-2" />
             </Carousel>
           </div>
