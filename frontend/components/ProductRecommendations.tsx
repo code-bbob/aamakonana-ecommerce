@@ -66,15 +66,7 @@ export const ProductRecommendations = ({ productId }: { productId: string }) => 
     }
   }, [productId]);
 
-  const renderStars = (rating: number) => {
-    return Array.from({ length: 5 }).map((_, i) => (
-      <Star
-        key={i}
-        size={14}
-        className={i < Math.round(rating) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}
-      />
-    ));
-  };
+
 
   const ProductCard = ({ product }: { product: Product }) => {
     const discount = product.old_price
@@ -164,8 +156,6 @@ export const ProductRecommendations = ({ productId }: { productId: string }) => 
     if (!products || products.length === 0) {
       return null;
     }
-
-    const containerRef = useEffect(() => { }, []);
 
     const handleScroll = (direction: 'left' | 'right') => {
       const container = document.getElementById(`scroll-${sectionKey}`);
