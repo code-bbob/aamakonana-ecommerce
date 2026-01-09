@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Star, X } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import { ProductRecommendations } from '@/components/ProductRecommendations';
 import {
   Carousel,
   CarouselContent,
@@ -519,6 +520,11 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
             </div>
           </div>
         )}
+
+        {/* Product Recommendations Section */}
+        <div className="mt-6 border-t-2 border-gray-200 pt-6">
+          <ProductRecommendations productId={product.product_id} />
+        </div>
       </div>
 
       {/* Image Modal */}

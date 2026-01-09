@@ -127,7 +127,7 @@ export default function AmakonanaLanding() {
                 title="For Mothers" 
                 subtitle="Thoughtfully designed essentials to support you through every stage of motherhood."
                 description="Our maternity collection combines traditional Nepali craftsmanship with modern comfort. Featured here is our signature cotton loungewear, perfect for nursing and recovery."
-                products={motherProducts}
+                products={babyProducts}
                 categorySlug="Mothers"
                 featuredImage="/images/mom5.png"
                 imagePosition="left"
