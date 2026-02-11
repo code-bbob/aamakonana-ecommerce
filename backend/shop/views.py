@@ -603,3 +603,126 @@ class BrandViewSet(viewsets.ModelViewSet):
                 model = Brand
                 fields = ['id', 'name']
         return BrandSerializer
+
+
+class RecommendationsView(APIView):
+    """
+    Provides product recommendations based on the current product.
+    Returns upsells, complementary products, and trending products.
+    """
+    
+    # Complementary category mappings for cross-sells
+    COMPLEMENTARY_CATEGORIES = {
+        'moms': ['babies', 'kids', 'nursing'],
+        'babies': ['moms', 'clothing', 'toys'],
+    }
+    
+    def get(self, request):
+        product_id = request.query_params.get('product_id')
+        
+        if not product_id:
+            return Response({'error': 'product_id is required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            current_product = Product.objects.get(product_id=product_id)
+        except Product.DoesNotExist:
+            return Response({'error': 'Product not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        recommendations = {
+            'same_category': [],
+            'complementary': [],
+            'trending': []
+        }
+        
+        # Get category name for complementary products
+        category_name = current_product.category.name.lower() if current_product.category else ''
+        
+        # 1. SAME CATEGORY: All products in same category, prioritize by score
+        if current_product.category:
+            same_cat_candidates = Product.objects.filter(
+                category=current_product.category
+            ).exclude(
+                product_id=product_id
+            )
+            
+            # Calculate priority score: trending=4, featured=3, best_seller=2, deal=1
+            same_cat_products = []
+            for product in same_cat_candidates:
+                score = 0
+                if product.trending:
+                    score += 4
+                if product.featured:
+                    score += 3
+                if product.best_seller:
+                    score += 2
+                if product.deal:
+                    score += 1
+                same_cat_products.append((product, score))
+            
+            # Sort by priority score (descending) and take top 12
+            same_cat_products.sort(key=lambda x: x[1], reverse=True)
+            recommendations['same_category'] = ProductSerializer(
+                [p[0] for p in same_cat_products[:12]], 
+                many=True, 
+                context={'request': request}
+            ).data
+        
+        # 2. COMPLEMENTARY PRODUCTS: Cross-category recommendations
+        complementary_cats = []
+        for key, values in self.COMPLEMENTARY_CATEGORIES.items():
+            if key in category_name:
+                complementary_cats = values
+                break
+        
+        if complementary_cats:
+            # Get categories that match complementary names
+            matching_categories = Category.objects.filter(
+                name__iregex=r'(' + '|'.join(complementary_cats) + ')'
+            )
+            
+            if matching_categories.exists():
+                complementary_products = Product.objects.filter(
+                    category__in=matching_categories
+                ).exclude(
+                    product_id=product_id
+                )
+                
+                # Calculate priority scores
+                comps = []
+                for product in complementary_products:
+                    score = 0
+                    if product.trending:
+                        score += 4
+                    if product.featured:
+                        score += 3
+                    if product.best_seller:
+                        score += 2
+                    if product.deal:
+                        score += 1
+                    comps.append((product, score))
+                
+                # Sort by priority and take top 12
+                comps.sort(key=lambda x: x[1], reverse=True)
+                recommendations['complementary'] = ProductSerializer(
+                    [p[0] for p in comps[:12]], 
+                    many=True, 
+                    context={'request': request}
+                ).data
+        
+        # 3. FALLBACK: Trending products if not enough recommendations
+        total_recs = len(recommendations['same_category']) + len(recommendations['complementary'])
+        if total_recs < 12:
+            needed = 12 - total_recs
+            trending_products = Product.objects.filter(
+                trending=True
+            ).exclude(
+                product_id=product_id
+            ).order_by('-published_date')[:needed]
+            
+            recommendations['trending'] = ProductSerializer(
+                trending_products, 
+                many=True, 
+                context={'request': request}
+            ).data
+        
+        return Response(recommendations)

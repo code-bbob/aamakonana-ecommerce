@@ -24,6 +24,7 @@ urlpatterns = [
     path('api/navsearch/', views.NavSearchView.as_view(), name='search'),
     path('api/navcat/', views.NavCatView.as_view(), name='navcat'),
     path('api/search/', views.ApiSearch.as_view(), name='search'),
+    path('api/recommendations/', views.RecommendationsView.as_view(), name='recommendations'),
     path('api/<slug:id>/', views.ProductSearch.as_view(), name='about_product'),
     path('api/catsearch/<str:name>/', views.CatSearch.as_view(), name='catsearch'),
     path('api/catsearch/<str:catname>/brand/<str:brandname>/', views.CatBrandSearch.as_view(), name='catbrandsearch'),

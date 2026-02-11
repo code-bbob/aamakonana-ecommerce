@@ -30,7 +30,7 @@ SECRET_KEY = 'django-insecure-oo9ge4pueyqs)6-!$hd57ovhen1werk6--ppddn6(hgfj(y^x4
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['142.93.220.137', 'api.youthtech.com.np', 'localhost', '127.0.0.1', '192.168.1.87' ,'youthtech.com.np', 'websroom.com']
+ALLOWED_HOSTS = ['142.93.220.137', 'api.youthtech.com.np', 'localhost', '127.0.0.1', '192.168.1.81' ,'youthtech.com.np', 'websroom.com']
 
 
 # Application definition
