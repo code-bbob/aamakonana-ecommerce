@@ -11,7 +11,6 @@ from shop.models import Product, Color, Size
 import datetime
 from django.core.mail import EmailMultiAlternatives
 from django.utils.html import strip_tags
-from .tasks import send_order_email  # Import the Celery task
 from rest_framework.pagination import PageNumberPagination
 from django.db.models import Q
 
