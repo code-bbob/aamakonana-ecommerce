@@ -31,7 +31,8 @@ export function SiteHeader() {
           : "bg-purple-200 backdrop-blur-md border-transparent "
       )}
     >
-      <div className="max-w-7xl h-16 mx-auto px-6 lg:px-8 flex items-center justify-between">
+      <div className="max-w-7xl h-20 mx-auto px-6 lg:px-8 flex items-center justify-between">
+
         {/* Mobile Menu Button */}
         <button
           className="md:hidden p-2 -ml-2 text-neutral-800"
@@ -107,7 +108,7 @@ export function SiteHeader() {
                 name="search"
                 type="text"
                 placeholder="Search..."
-                className="pl-3 pr-8 py-1.5 text-sm border border-gray-500 rounded-full w-[160px] focus:w-[200px] transition-all focus:outline-none focus:border-neutral-400 bg-transparent placeholder:text-neutral-400"
+                className="pl-3 pr-8 py-1.5 text-sm border border-gray-500 rounded-full w-[160px] focus:w-[400px] transition-all focus:outline-none focus:border-neutral-400 bg-transparent placeholder:text-neutral-400"
               />
               <button
                 type="submit"

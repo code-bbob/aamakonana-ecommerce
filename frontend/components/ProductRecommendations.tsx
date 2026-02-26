@@ -66,7 +66,15 @@ export const ProductRecommendations = ({ productId }: { productId: string }) => 
     }
   }, [productId]);
 
-
+  const renderStars = (rating: number) => {
+    return Array.from({ length: 5 }).map((_, i) => (
+      <Star
+        key={i}
+        size={14}
+        className={i < Math.round(rating) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}
+      />
+    ));
+  };
 
   const ProductCard = ({ product }: { product: Product }) => {
     const discount = product.old_price
@@ -75,67 +83,66 @@ export const ProductRecommendations = ({ productId }: { productId: string }) => 
 
     return (
       <Link href={`/products/${product.product_id}`}>
-        <div className="flex-shrink-0 w-64 group cursor-pointer h-full">
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 h-full flex flex-col ">
-            {/* Image Container */}
-            <div className="relative w-full aspect-square bg-white rounded-t-2xl overflow-hidden mb-3">
-              {product.images && product.images.length > 0 ? (
-                <Image
-                  src={product.images[0].image}
-                  alt={product.name}
-                  fill
-                  className="object-contain group-hover:scale-105 transition-transform duration-300"
-                />
-              ) : (
-                <div className="w-full h-full bg-gray-50 flex items-center justify-center text-gray-200">
-                  <span className="text-4xl font-bold">?</span>
-                </div>
-              )}
+        <div className="flex-shrink-0 w-56 group cursor-pointer">
+          {/* Image Container with overlay label */}
+          <div className="relative w-full h-64 bg-gray-100 rounded-2xl overflow-hidden mb-4 shadow-sm hover:shadow-md transition-shadow">
+            {product.images && product.images.length > 0 ? (
+              <Image
+                src={product.images[0].image}
+                alt={product.name}
+                fill
+                className="object-cover group-hover:scale-105 transition-transform duration-300"
+              />
+            ) : (
+              <div className="w-full h-full bg-gray-200" />
+            )}
+            
+            {/* Discount Badge */}
+            {discount > 0 && (
+              <div className="absolute top-4 right-4 bg-red-600 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg">
+                -{discount}%
+              </div>
+            )}
 
-              {/* Discount Badge */}
-              {discount > 0 && (
-                <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-[10px] font-bold shadow-sm">
-                  -{discount}%
-                </div>
-              )}
+            {/* Category/Label in top left if exists */}
+            {product.featured && (
+              <div className="absolute top-4 left-4 bg-yellow-500 text-white px-3 py-1.5 rounded-full text-xs font-semibold">
+                Fur Stocking
+              </div>
+            )}
+          </div>
 
-              {/* Featured/Category Label */}
-              {product.featured && (
-                <div className="absolute top-2 left-2 bg-amber-100 text-amber-800 px-2 py-1 rounded text-[10px] font-bold">
-                  Featured
+          {/* Content */}
+          <div>
+            {/* Product Name */}
+            <h3 className="text-sm font-medium text-gray-900 line-clamp-2 mb-3 min-h-10">
+              {product.name}
+            </h3>
+
+            {/* Rating and Price Row */}
+            <div className="flex items-center justify-between">
+              {/* Rating with Star */}
+              <div className="flex items-center gap-1.5">
+                <div className="flex gap-0.5">
+                  {renderStars(product.ratings?.stats?.avg_rating || 0)}
                 </div>
-              )}
+                {product.ratings?.stats?.total_ratings && product.ratings.stats.total_ratings > 0 && (
+                  <span className="text-xs text-gray-500">
+                    {product.ratings.stats.total_ratings}
+                  </span>
+                )}
+              </div>
             </div>
 
-            {/* Content */}
-            <div className="flex flex-col px-5 flex-grow py-3">
-              {/* Product Name */}
-              <h3 className="text-sm font-semibold text-gray-900 line-clamp-2 mb-2 min-h-10 leading-snug">
-                {product.name}
-              </h3>
-
-              {/* Price Section */}
-              <div className="mt-auto space-y-2">
-                <div className="flex items-baseline gap-2">
-                  <span className="text-lg font-bold text-red-600">NPR {product.price.toLocaleString()}</span>
-                  {product.old_price && (
-                    <span className="text-xs text-gray-400 line-through">
-                      NPR {product.old_price.toLocaleString()}
-                    </span>
-                  )}
-                </div>
-
-                {/* Rating Row */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1">
-                    <Star size={14} className="fill-amber-400 text-amber-400" />
-                    <span className="text-xs font-medium text-gray-600">
-                      {product.ratings?.stats?.avg_rating || 0}
-                    </span>
-                  </div>
-                  {/* Optional: Add to cart button or simple arrow if needed, 
-                      but keeping it clean as per screenshot implies just data */}
-                </div>
+            {/* Price Section */}
+            <div className="mt-2.5">
+              <div className="flex items-baseline gap-2">
+                <span className="text-lg font-bold text-red-600">NPR {product.price}</span>
+                {product.old_price && (
+                  <span className="text-xs text-gray-400 line-through">
+                    NPR {product.old_price}
+                  </span>
+                )}
               </div>
             </div>
           </div>
@@ -156,6 +163,8 @@ export const ProductRecommendations = ({ productId }: { productId: string }) => 
     if (!products || products.length === 0) {
       return null;
     }
+
+    const containerRef = useEffect(() => {}, []);
 
     const handleScroll = (direction: 'left' | 'right') => {
       const container = document.getElementById(`scroll-${sectionKey}`);
@@ -223,7 +232,7 @@ export const ProductRecommendations = ({ productId }: { productId: string }) => 
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-16">
       {recommendations.same_category && recommendations.same_category.length > 0 && (
         <RecommendationSection
           title="Similar Products"
