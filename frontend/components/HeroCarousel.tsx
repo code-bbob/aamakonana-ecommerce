@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState, useCallback } from "react";
+import Image from "next/image";
 import useEmblaCarousel from 'embla-carousel-react';
 
 type Slide = {
@@ -190,9 +191,11 @@ export default function HeroCarousel() {
                       >
                         <div className="flex items-center pb-4 gap-3">
                           <div className="h-32 w-32 bg-[color:var(--background)]/5 rounded-lg flex items-center justify-center overflow-hidden">
-                            <img
+                            <Image
                               src={p.image}
                               alt={p.name}
+                              width={128}
+                              height={128}
                               className="h-full w-full object-cover"
                             />
                           </div>

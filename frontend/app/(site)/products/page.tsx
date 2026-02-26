@@ -111,14 +111,6 @@ function ProductsContent() {
     router.push(`/products?${params.toString()}`);
   };
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const form = e.target as HTMLFormElement;
-    const input = form.elements.namedItem('search-input') as HTMLInputElement;
-    updateParams({ search: input.value });
-    setShowSuggestions(false);
-  };
-
   const handleSearchInput = (value: string) => {
     if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
     if (!value.trim()) {
@@ -138,23 +130,6 @@ function ProductsContent() {
       } catch (e) { console.error(e); }
       finally { setSearchLoading(false); }
     }, 300);
-  };
-
-  const getPaginationNumbers = () => {
-    const pages: (number | string)[] = [];
-    const maxPages = 5;
-    if (totalPages <= maxPages) {
-      for (let i = 1; i <= totalPages; i++) pages.push(i);
-    } else {
-      pages.push(1);
-      const startPage = Math.max(2, currentPage - 1);
-      const endPage = Math.min(totalPages - 1, currentPage + 1);
-      if (startPage > 2) pages.push('...');
-      for (let i = startPage; i <= endPage; i++) pages.push(i);
-      if (endPage < totalPages - 1) pages.push('...');
-      pages.push(totalPages);
-    }
-    return pages;
   };
 
   return (

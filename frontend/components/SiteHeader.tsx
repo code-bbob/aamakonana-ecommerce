@@ -2,14 +2,12 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
 import { Search, User, Menu } from "lucide-react";
 import { CartButton } from "@/components/CartButton";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
 
 export function SiteHeader() {
-  const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 

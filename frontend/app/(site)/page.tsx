@@ -19,7 +19,6 @@ interface Product {
 
 export default function AmakonanaLanding() {
   const { getProducts } = useProductAPI();
-  const [motherProducts, setMotherProducts] = useState<Product[]>([]);
   const [babyProducts, setBabyProducts] = useState<Product[]>([]);
 
   useEffect(() => {
@@ -27,10 +26,6 @@ export default function AmakonanaLanding() {
     initRevealObserver();
 
     const fetchProducts = async () => {
-      const mothers = await getProducts(1, { category: "Moms" });
-      if (mothers && mothers.results)
-        setMotherProducts(mothers.results.slice(0, 8)); // Fetch more products for carousel
-
       const babies = await getProducts(1, { category: "Babies" });
       if (babies && babies.results) setBabyProducts(babies.results.slice(0, 8));
     };

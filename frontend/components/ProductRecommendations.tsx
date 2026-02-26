@@ -160,12 +160,6 @@ export const ProductRecommendations = ({ productId }: { productId: string }) => 
     products: Product[];
     sectionKey: string;
   }) => {
-    if (!products || products.length === 0) {
-      return null;
-    }
-
-    const containerRef = useEffect(() => {}, []);
-
     const handleScroll = (direction: 'left' | 'right') => {
       const container = document.getElementById(`scroll-${sectionKey}`);
       if (!container) return;
@@ -179,6 +173,10 @@ export const ProductRecommendations = ({ productId }: { productId: string }) => 
         behavior: 'smooth',
       });
     };
+
+    if (!products || products.length === 0) {
+      return null;
+    }
 
     return (
       <div>
